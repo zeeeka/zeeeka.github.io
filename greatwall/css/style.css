@@ -1,0 +1,453 @@
+* {
+    font-family: 'Oswald', sans-serif;
+}
+body{
+    margin: 0;
+}
+:root {
+    --black : #1f1c1c ;
+    --main : #E05D5D ;
+}
+/*header*/
+.header {
+    height: 128px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    position: relative;
+    z-index: 3;
+}
+.header .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.header .container p {
+    font-size: 25px;
+    color: var(--black);
+}
+@media (max-width : 300px) {
+    .header .container p {
+        font-size: 20px;
+    }
+}
+@media (max-width : 235px) {
+    .header .container p {
+        font-size: 16px;
+    }
+}
+/*landing*/
+.landing{
+    background-size: cover;
+    background-blend-mode: lighten;
+    height: 525px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    align-items: center;
+}
+.landing::before{
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgb(255, 255, 255 , 0.25);
+}
+.landing .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+}
+.landing .container a {
+    color: white;
+    text-decoration: none;
+    background-color: black;
+    width: 150px;
+    padding: 16px;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 3;
+    cursor: pointer;
+    border: 3px solid black;
+    transition: 0.3s;
+}
+.landing .container a:last-child{
+    margin-bottom: 0 !important;
+}
+.landing .container a:hover{
+    background-color: white;
+    color: black;
+    border: 3px solid black;
+}
+/*
+.landing .container .firstrow > div{
+    font-size: 80px;
+    font-weight: 100;
+    position: absolute;
+    transform-origin: center center;
+}
+.landing .container .firstrow .nine {
+    top: 50%;
+    transform: translate(0,-50%);
+    left: -115px;
+    animation: nineocklock 3s ease forwards , planetrotatenine 20s 3s linear infinite ;
+}
+.landing .container .firstrow .twelve {
+    transform: translate(50% , 0);
+    right: 50%;
+    animation: twelveocklock 3s ease forwards , planetrotatetwelve 20s 3s linear infinite ;
+}
+.landing .container .firstrow .eleven {
+    animation: elevenocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
+}
+.landing .container .firstrow .ten {
+    animation: tenocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
+}
+.landing .container .firstrow .six {
+    transform: translate(50% , 0) ;
+    animation: sixocklock 3s ease forwards , planetrotatesix 20s 3s linear infinite ;
+}
+.landing .container .firstrow .seven {
+    animation: sevenocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
+}
+.landing .container .firstrow .eight{
+    animation: eightocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
+}
+.landing .container .firstrow .one {
+    animation: oneocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
+}
+.landing .container .firstrow .two {
+    animation: twoocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
+}
+.landing .container .firstrow .three {
+    animation: threeocklock 3s ease forwards , planetrotatenine 20s 3s linear infinite ;
+    top: 50%;
+    transform: translate(0,-50%);
+    right: -115px;
+}
+.landing .container .firstrow .four {
+    animation: fourocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
+}
+.landing .container .firstrow .five {
+    animation: fiveocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
+}
+@keyframes nineocklock {
+    0%{
+        left: -900px;
+    }
+    100%{
+        left: -115px;
+    }
+} 
+@keyframes twelveocklock {
+    0%{
+        top : -300px
+    }
+    100%{
+        top:75px
+    }
+}
+@keyframes elevenocklock {
+    0%{
+        top: -600px;
+        left: -600px;
+    }
+    100%{
+        top: 103px;
+        left: -45px;
+    }
+}
+@keyframes tenocklock {
+    0%{
+        top: -600px;
+        left: -600px;
+    }
+    100%{
+        top: 180px;
+        left: -95px;
+    }
+}
+@keyframes sixocklock{
+    0%{
+        bottom: -1000px;
+    }
+    100%{
+        right: 50%;
+        bottom: 100px;
+    }
+}
+@keyframes sevenocklock{
+    0%{
+        bottom: -1000px;
+    }
+    100%{
+        left: -20px;
+        bottom: 130px;
+    }
+}
+@keyframes eightocklock{
+    0%{
+        left: -800px;
+        bottom: 0;
+    }
+    100%{
+        bottom: 180px;
+        left: -95px;
+    }
+}
+@keyframes oneocklock {
+    0%{
+        top: -600px;
+        right: -600px;
+    }
+    100%{
+        top: 103px;
+        right: -45px;
+    }
+}
+@keyframes twoocklock {
+    0%{
+        top: -600px;
+        right: -600px;
+    }
+    100%{
+        top: 180px;
+        right: -95px;
+    }
+}
+@keyframes threeocklock {
+    0%{
+        right: -900px;
+    }
+    100%{
+        right: -115px;
+    }
+}
+@keyframes fourocklock{
+    0%{
+        right: -800px;
+        bottom: 0;
+    }
+    100%{
+        bottom: 180px;
+        right: -95px;
+    }
+}
+@keyframes fiveocklock{
+    0%{
+        bottom: -1000px;
+    }
+    100%{
+        right: -20px;
+        bottom: 130px;
+    }
+}
+@keyframes planetrotatetwelve {
+    100%{
+        transform: translate(50%,0) rotate(1turn);
+    }
+}
+@keyframes planetrotatesix {
+    100%{
+        transform: translate(50%,0) rotate(1turn);
+    }
+}
+@keyframes planetrotatenine {
+    100%{
+        transform: translate(0,-50%) rotate(1turn);
+    }
+}
+@keyframes planetrotate {
+    100%{
+        transform:  rotate(1turn);
+    }
+}*/
+.firstrow {
+    height: 475px;
+    width: 475px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: rotate 20s 3s linear infinite forwards;
+    border: 5px solid black;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.firstrow div{
+    font-size: 80px;
+    font-weight: 100;
+}
+.firstrow .nine {
+    position: absolute;
+    animation: nine 3s forwards , rotate 20s 3s linear infinite forwards;
+}
+.firstrow .twelve {
+    position: absolute;
+    animation: twelve 3s forwards , rotate 20s 3s linear infinite forwards;
+}
+.firstrow .six {
+    position: absolute;
+    animation: six 3s forwards , rotate 20s 3s linear infinite forwards;
+}
+.firstrow .three {
+    position: absolute;
+    animation: three 3s forwards , rotate 20s 3s linear infinite forwards ;
+}
+.firstrow .eleven {
+    position: absolute;
+    animation: eleven 3s forwards , rotate 20s 3s linear infinite forwards;
+}
+.firstrow .ten {
+    position: absolute;
+    animation: ten 3s forwards , rotate 20s 3s linear infinite forwards;
+}
+.firstrow .two {
+    position: absolute;
+    animation: two 3s forwards , rotate 20s 3s linear infinite forwards;
+}
+.firstrow .eight {
+    position: absolute;
+    animation: eight 3s forwards , rotate 20s 3s linear infinite forwards;
+}
+.firstrow .four {
+    position: absolute;
+    animation: four 3s forwards , rotate 20s 3s linear infinite forwards ;
+}
+.firstrow .one {
+    position: absolute;
+    animation: one 3s forwards , rotate 20s 3s linear infinite forwards;
+}
+.firstrow .seven {
+    position: absolute;
+    animation: seven 3s forwards , rotate 20s 3s linear infinite forwards;
+}
+.firstrow .five {
+    position: absolute;
+    animation: five 3s forwards , rotate 20s 3s linear infinite forwards;
+}
+@keyframes twelve {
+    0%{
+        top: -200px;
+    }
+    100%{
+        top: 0;
+    }
+}
+@keyframes nine {
+    0%{
+        left: -600px;
+    }
+    100%{
+        left: 0;
+    }
+}
+@keyframes six {
+    0%{
+        bottom: -200px;
+    }
+    100%{
+        bottom: 0;
+    }
+}
+@keyframes three {
+    0%{
+        right: -600px;
+    }
+    100%{
+        right: 0;
+    }
+}
+@keyframes eleven {
+    0%{
+        top : -200px ;
+        left: -600px;
+    }
+    100%{
+        top: 25px;
+        left: 23%;
+    }
+}
+@keyframes ten {
+    0%{
+        top : -200px ;
+        left: -600px;
+    }
+    100%{
+        top: 100px;
+        left: 10%;
+    }
+}
+@keyframes two {
+    0%{
+        top : -200px ;
+        right: -600px;
+    }
+    100%{
+        top: 100px;
+        right: 10%;
+    }
+}
+@keyframes eight {
+    0%{
+        bottom : -200px ;
+        left: -600px;
+    }
+    100%{
+        bottom: 100px;
+        left : 10%;
+    }
+}
+@keyframes seven {
+    0%{
+        bottom : -200px ;
+        left: -600px;
+    }
+    100%{
+        bottom: 25px;
+        left: 23%;
+    }
+}
+@keyframes five {
+    0%{
+        bottom : -200px ;
+        right: -600px;
+    }
+    100%{
+        bottom: 25px;
+        right: 23%;
+    }
+}
+@keyframes four {
+    0%{
+        bottom : -200px ;
+        right: -600px;
+    }
+    100%{
+        bottom: 100px;
+        right : 10%;
+    }
+}
+@keyframes one {
+    0%{
+        top : -200px ;
+        right: -600px;
+    }
+    100%{
+        top: 25px;
+        right: 23%;
+    }
+}
+@keyframes rotate {
+    100%{
+        transform: rotate(1turn);
+    }
+}
