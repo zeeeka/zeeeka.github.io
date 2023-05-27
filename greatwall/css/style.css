@@ -17,6 +17,7 @@ body{
     background-color: white;
     position: relative;
     z-index: 3;
+    box-shadow: 2px 2px 18px 0px #606060;
 }
 .header .container {
     display: flex;
@@ -41,7 +42,7 @@ body{
 .landing{
     background-size: cover;
     background-blend-mode: lighten;
-    height: 525px;
+    height: 100vh;
     position: relative;
     display: flex;
     justify-content: center;
@@ -87,189 +88,7 @@ body{
     color: black;
     border: 3px solid black;
 }
-/*
-.landing .container .firstrow > div{
-    font-size: 80px;
-    font-weight: 100;
-    position: absolute;
-    transform-origin: center center;
-}
-.landing .container .firstrow .nine {
-    top: 50%;
-    transform: translate(0,-50%);
-    left: -115px;
-    animation: nineocklock 3s ease forwards , planetrotatenine 20s 3s linear infinite ;
-}
-.landing .container .firstrow .twelve {
-    transform: translate(50% , 0);
-    right: 50%;
-    animation: twelveocklock 3s ease forwards , planetrotatetwelve 20s 3s linear infinite ;
-}
-.landing .container .firstrow .eleven {
-    animation: elevenocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
-}
-.landing .container .firstrow .ten {
-    animation: tenocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
-}
-.landing .container .firstrow .six {
-    transform: translate(50% , 0) ;
-    animation: sixocklock 3s ease forwards , planetrotatesix 20s 3s linear infinite ;
-}
-.landing .container .firstrow .seven {
-    animation: sevenocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
-}
-.landing .container .firstrow .eight{
-    animation: eightocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
-}
-.landing .container .firstrow .one {
-    animation: oneocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
-}
-.landing .container .firstrow .two {
-    animation: twoocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
-}
-.landing .container .firstrow .three {
-    animation: threeocklock 3s ease forwards , planetrotatenine 20s 3s linear infinite ;
-    top: 50%;
-    transform: translate(0,-50%);
-    right: -115px;
-}
-.landing .container .firstrow .four {
-    animation: fourocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
-}
-.landing .container .firstrow .five {
-    animation: fiveocklock 3s ease forwards , planetrotate 20s 3s linear infinite ;
-}
-@keyframes nineocklock {
-    0%{
-        left: -900px;
-    }
-    100%{
-        left: -115px;
-    }
-} 
-@keyframes twelveocklock {
-    0%{
-        top : -300px
-    }
-    100%{
-        top:75px
-    }
-}
-@keyframes elevenocklock {
-    0%{
-        top: -600px;
-        left: -600px;
-    }
-    100%{
-        top: 103px;
-        left: -45px;
-    }
-}
-@keyframes tenocklock {
-    0%{
-        top: -600px;
-        left: -600px;
-    }
-    100%{
-        top: 180px;
-        left: -95px;
-    }
-}
-@keyframes sixocklock{
-    0%{
-        bottom: -1000px;
-    }
-    100%{
-        right: 50%;
-        bottom: 100px;
-    }
-}
-@keyframes sevenocklock{
-    0%{
-        bottom: -1000px;
-    }
-    100%{
-        left: -20px;
-        bottom: 130px;
-    }
-}
-@keyframes eightocklock{
-    0%{
-        left: -800px;
-        bottom: 0;
-    }
-    100%{
-        bottom: 180px;
-        left: -95px;
-    }
-}
-@keyframes oneocklock {
-    0%{
-        top: -600px;
-        right: -600px;
-    }
-    100%{
-        top: 103px;
-        right: -45px;
-    }
-}
-@keyframes twoocklock {
-    0%{
-        top: -600px;
-        right: -600px;
-    }
-    100%{
-        top: 180px;
-        right: -95px;
-    }
-}
-@keyframes threeocklock {
-    0%{
-        right: -900px;
-    }
-    100%{
-        right: -115px;
-    }
-}
-@keyframes fourocklock{
-    0%{
-        right: -800px;
-        bottom: 0;
-    }
-    100%{
-        bottom: 180px;
-        right: -95px;
-    }
-}
-@keyframes fiveocklock{
-    0%{
-        bottom: -1000px;
-    }
-    100%{
-        right: -20px;
-        bottom: 130px;
-    }
-}
-@keyframes planetrotatetwelve {
-    100%{
-        transform: translate(50%,0) rotate(1turn);
-    }
-}
-@keyframes planetrotatesix {
-    100%{
-        transform: translate(50%,0) rotate(1turn);
-    }
-}
-@keyframes planetrotatenine {
-    100%{
-        transform: translate(0,-50%) rotate(1turn);
-    }
-}
-@keyframes planetrotate {
-    100%{
-        transform:  rotate(1turn);
-    }
-}*/
+/*firstrow*/
 .firstrow {
     height: 475px;
     width: 475px;
@@ -277,10 +96,9 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: rotate 20s 3s linear infinite forwards;
+    animation: rotate 20s 3s linear infinite forwards , paddingdec 1.5s forwards;
     border: 5px solid black;
     border-radius: 50%;
-    overflow: hidden;
 }
 .firstrow div{
     font-size: 80px;
@@ -334,6 +152,14 @@ body{
     position: absolute;
     animation: five 3s forwards , rotate 20s 3s linear infinite forwards;
 }
+@keyframes paddingdec {
+    0%{
+        padding: 1000px;
+    }
+    100%{
+        padding: 0;
+    }
+}
 @keyframes twelve {
     0%{
         top: -200px;
@@ -347,7 +173,7 @@ body{
         left: -600px;
     }
     100%{
-        left: 0;
+        left: 10px;
     }
 }
 @keyframes six {
@@ -363,7 +189,7 @@ body{
         right: -600px;
     }
     100%{
-        right: 0;
+        right: 10px;
     }
 }
 @keyframes eleven {
@@ -449,5 +275,286 @@ body{
 @keyframes rotate {
     100%{
         transform: rotate(1turn);
+    }
+}
+@media (max-width: 485px){
+    .firstrow div{
+        font-size: 60px;
+    }
+    .firstrow {
+        height: 400px;
+        width: 400px;
+    }
+    .landing .container a {
+        padding: 8px;
+        margin-bottom: 8px;
+    }
+}
+@media (max-width: 415px){
+    .firstrow div{
+        font-size: 45px;
+    }
+    .firstrow {
+        height: 350px;
+        width: 350px;
+    }
+    @keyframes ten {
+        0%{
+            top : -200px ;
+            left: -600px;
+        }
+        100%{
+            top: 75px;
+            left: 10%;
+        }
+    }
+    @keyframes two {
+        0%{
+            top : -200px ;
+            right: -600px;
+        }
+        100%{
+            top: 75px;
+            right: 10%;
+        }
+    }
+    @keyframes eight {
+        0%{
+            bottom : -200px ;
+            left: -600px;
+        }
+        100%{
+            bottom: 75px;
+            left : 10%;
+        }
+    }
+    @keyframes four {
+        0%{
+            bottom : -200px ;
+            right: -600px;
+        }
+        100%{
+            bottom: 75px;
+            right : 10%;
+        }
+    }
+}
+@media (max-width : 350px){
+    .firstrow {
+        height: 300px;
+        width: 300px;
+    }
+    .landing .container a {
+        padding: 8px;
+        width: 125px;
+        margin-bottom: 8px;
+    }
+}
+/*secondrow*/
+.secondrowcont{
+    position: absolute;
+}
+.secondrow {
+    width: 750px;
+    height: 750px;
+    position: relative;
+    border: 10px double black;
+    border-radius: 50%;
+    animation: rotate 20s 4s linear infinite forwards , paddingdec 2s forwards;
+}
+.secondrow div {
+    font-size: 100px ;
+    font-weight: 200;
+    position: absolute;
+}
+.secondrow .nine {
+    position: absolute;
+    transform: translate(0,-50%);
+    animation: secondnine 4s forwards , rotateoppnine 20s 4s linear infinite forwards ;
+}
+.secondrow .twelve {
+    transform: translate(-50% , 0);
+    animation: secondtwelve 4s forwards , rotateopptwelve 20s 4s linear infinite forwards;
+}
+.secondrow .six {
+    bottom: -30px;
+    left: 50%;
+    transform: translate(-50% , 0);
+    animation: secondsix 4s forwards , rotateopptwelve 20s 4s linear infinite forwards;
+}
+.secondrow .three {
+    bottom: 50%;
+    right: 0;
+    transform: translate(0,50%);
+    animation: secondthree 4s forwards , rotateoppthree 20s 4s linear infinite forwards;
+}
+.secondrow .eleven {
+    animation: secondeleven 4s forwards , rotateopp 20s 4s linear infinite forwards;
+}
+.secondrow .ten {
+    animation: secondten 4s forwards , rotateopp 20s 4s linear infinite forwards;
+}
+.secondrow .one {
+    animation: secondone 4s forwards , rotateopp 20s 4s linear infinite forwards;
+}
+.secondrow .two {
+    animation: secondtwo 4s forwards , rotateopp 20s 4s linear infinite forwards;
+}
+.secondrow .seven {
+    animation: secondseven 4s forwards , rotateopp 20s 4s linear infinite forwards;
+}
+.secondrow .eight {
+    animation: secondeight 4s forwards , rotateopp 20s 4s linear infinite forwards;
+}
+.secondrow .five {
+    animation: secondfive 4s forwards , rotateopp 20s 4s linear infinite forwards;
+}
+.secondrow .four {
+    animation: secondfour 4s forwards , rotateopp 20s 4s linear infinite forwards;
+}
+@keyframes secondtwelve {
+    0%{
+        top: -200px;
+    }
+    100%{
+        top: -30px;
+        left: 50%;
+    }
+}
+@keyframes secondsix {
+    0%{
+        bottom: -600px;
+        left: 50%;
+    }
+    100%{
+        bottom: -30px;
+        left: 50%;
+    }
+}
+@keyframes secondnine {
+    0%{
+        left: -600px;
+    }
+    100%{
+        top: 50%;
+        left: 0;
+    }
+}
+@keyframes secondthree {
+    0%{
+        right: -600px;
+    }
+    100%{
+        bottom: 50%;
+        right: 0;
+    }
+}
+@keyframes secondeleven {
+    0%{
+        left: -600px;
+        top: -200px;
+    }
+    100%{
+        top: 20px;
+        left: 22%;
+    }
+}
+@keyframes secondten {
+    0%{
+        left: -600px;
+        top: -200px;
+    }
+    100%{
+        top: 120px;
+        left: 7%;
+    }
+}
+@keyframes secondone {
+    0%{
+        right: -600px;
+        top: -200px;
+    }
+    100%{
+        top: 20px;
+        right: 22%;
+    }
+}
+@keyframes secondtwo {
+    0%{
+        right: -600px;
+        top: -200px;
+    }
+    100%{
+        top: 120px;
+        right: 7%;
+    }
+}
+@keyframes secondseven {
+    0%{
+        left: -600px;
+        bottom: -200px;
+    }
+    100%{
+        bottom: 30px;
+        left: 23%;
+    }
+}
+@keyframes secondeight {
+    0%{
+        left: -600px;
+        bottom: -200px;
+    }
+    100%{
+        bottom: 140px;
+        left: 8%;
+    }
+}
+@keyframes secondfive {
+    0%{
+        right: -600px;
+        bottom: -200px;
+    }
+    100%{
+        bottom: 30px;
+        right: 23%;
+    }
+}
+@keyframes secondfour {
+    0%{
+        right: -600px;
+        bottom: -200px;
+    }
+    100%{
+        bottom: 140px;
+        right: 8%;
+    }
+}
+@keyframes rotateopp {
+    100%{
+        transform: rotate(-1turn);
+    }
+}
+@keyframes rotateopptwelve {
+    0%{
+        transform: translate(-50% , 0);
+    }
+    100%{
+        transform: translate(-50% , 0) rotate(-1turn);
+    }
+}
+@keyframes rotateoppnine {
+    0%{
+        transform: translate(0,-50%);
+    }
+    100%{
+        transform: translate(0,-50%) rotate(-1turn);
+    }
+}
+@keyframes rotateoppthree {
+    0%{
+        transform: translate(0,50%);
+    }
+    100%{
+        transform: translate(0,50%) rotate(-1turn);
     }
 }
