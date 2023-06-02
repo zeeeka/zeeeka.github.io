@@ -22,7 +22,10 @@ ul{
 .container {
     margin: auto;
 }
-@media (max-width : 1440px) {
+.active{
+    color: #EE4A26 !important;
+}
+@media (max-width : 2000px) {
     .container{
         width: calc(100% - 256px);
     }
@@ -45,7 +48,8 @@ ul{
 .header .container{
     display: flex;
     justify-content: space-between;
-    height: 64px;
+    height: 100px;
+    align-items: center;
 }
 .header .container .logo{
     display: flex;
@@ -54,7 +58,7 @@ ul{
     height: 100%;
 }
 .header .container .logo img {
-    width: 45px;
+    width: 30px;
 }
 @media (max-width : 300px) {
     .header .container .logo img {
@@ -63,7 +67,7 @@ ul{
 }
 .header .container ul {
     display: flex;
-    height: 100%;
+    height: fit-content;
 }
 .header .container .bars {
     height: 100%;
@@ -72,12 +76,24 @@ ul{
     position: relative;
     z-index: 1;
 }
-.header .container i {
+.header .container .bars i {
     color: white;
     font-size: 30px;
 }
+.header .container li {
+    color: white;
+    font-size: 20px;
+    font-weight: 200;
+}
+.header .container li a {
+    text-decoration: none;
+    transition: 0.3s;
+}
+.header .container li a:not(.active) {
+    color: white ;
+}
 @media (max-width : 300px) {
-    .header .container i {
+    .header .container .bars i {
         color: white;
         font-size: 20px;
     }
@@ -96,12 +112,11 @@ ul{
     color: white;
     position: relative;
     z-index: 3;
-    transition: 0.3s;
 }
 .header .container ul li:first-child {
     color: #EE4A26;
 }
-.header .container ul li:hover {
+.header .container ul li a:hover {
     color: #EE4A26;
 }
 .header .container ul li:not(:last-child){
@@ -111,18 +126,26 @@ ul{
     height: 100vh;
     float: right;
     position: absolute;
-    z-index: 3;
+    z-index: 100;
     top: 0;
     right: 0;
     background-color: #333333;
     animation: fillmenu 1s forwards;
     display: none;
 }
-.sidelist ul li{
-    transition: 0.3s;
+.sidelist ul li a:not(.active){
+    color: white;
 }
-.sidelist ul li:hover {
+.sidelist ul li .active{
+    color: #EE4A26;
+}
+.sidelist ul li a{
+    transition: 0.3s;
+    text-decoration: none;
+}
+.sidelist ul li a:hover {
     margin-left: 40px;
+    color: #EE4A26;
 }
 .sidelist .closemenu {
     color: white;
@@ -133,10 +156,13 @@ ul{
     display: flex;
     flex-direction: row-reverse;
     cursor: pointer;
+    opacity: 0;
+    animation: opacitychange 1s 1s forwards;
 }
 .transparent {
     height: 100vh;
     width: 100%;
+    z-index: 99;
     position: absolute;
     top: 0;
     left: 0;
@@ -266,9 +292,18 @@ ul{
     width: 340px;
     background-color: #D9D9D9;
     position: absolute;
-    top: 0;
-    right: 0;
     z-index: 1;
+    animation: firstlayer 1s forwards;
+}
+@keyframes firstlayer {
+    0%{
+        top: 100px;
+        right: 100px;
+    }
+    100%{
+        top: 0;
+        right: 0;
+    }
 }
 .pimg::after {
     content: '';
@@ -276,11 +311,22 @@ ul{
     width: 340px;
     border: 1px solid #D9D9D9;
     position: absolute;
-    top: 50px;
-    right: 50px;
     z-index:-2;
     background-color: #141414;
     background-image: url('/images/Dust.png');
+    animation: secondlayer 1s 0.5s forwards;
+    top:100px;
+    right: 100px;
+}
+@keyframes secondlayer {
+    0%{
+        top:100px;
+        right: 100px;
+    }
+    100%{
+        top: 50px;
+        right: 50px;
+    }
 }
 .pimgtwo{
     height: 336px;
@@ -291,17 +337,44 @@ ul{
     right: 100px;
     z-index: -3;
 }
-.pimg img:first-child {
+.pimg div {
+    height: 350px;
+    width: 340px;
     position: absolute;
-    top: -135px;
-    left: -340px;
+    top: -13px;
+    right: 0;
     z-index: 3;
+    overflow: hidden;
+}
+.pimg div img {
+    width: 100%;
+    bottom: -110%;
+    position: absolute;
+    animation: imgappear 1s 1s forwards;
+}
+@keyframes imgappear {
+    0%{
+        bottom: -110%;
+    }
+    100%{
+        bottom: 0;
+    }
 }
 .pimg img:nth-child(2) {
     position: absolute;
     z-index: -1;
-    top: -29px;
-    left: -415px;
+    top: -17px;
+    right: -27px;
+    opacity: 0;
+    animation: opacitychange 1s 1.5s forwards;
+}
+@keyframes opacitychange {
+    0%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
 }
 @media (max-width : 1230px) {
     .landingtext div:nth-child(3){
@@ -330,4 +403,58 @@ ul{
     .landingtext div:nth-child(3) {
         text-align: center;
     }
+}
+/*projects*/
+.projects {
+    margin-top: 256px;
+}
+.projects .container {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.project {
+    display: flex;
+}
+.project .firstsection {
+    width: 309.5px;
+    height: 303px;
+    background-color: #A1A1A1;
+    position: relative;
+    z-index: 10;
+}
+.project .secondsection {
+    width: 929px;
+    height: 303px;
+    background-color: #333333;
+    position: relative;
+    z-index: 10;
+}
+@media (max-width : 1350px) {
+    .projects .container {
+        flex-wrap: wrap;
+        flex-direction: row;
+        justify-content: center;
+    }
+    .project {
+        flex-direction: column;
+    }
+    .project .secondsection , .project .firstsection {
+        width: 300px;
+        height: 250px;
+    }
+}
+/*footer*/
+.footer {
+    margin-top: 64px;
+}
+.footer .container {
+    display: flex;
+    justify-content: center;
+}
+.footer .container a {
+    color: #EE4A26;
+    font-size: 40px;
+    text-decoration: none;
+    cursor: pointer;
 }

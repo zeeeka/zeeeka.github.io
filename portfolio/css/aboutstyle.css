@@ -1,0 +1,50 @@
+.landingimg{
+    margin-top: 75px;
+    height: 445px;
+    width: 100%;
+    display: none !important;
+}
+.landingimgtwo {
+    transform: translate(0 , 0);
+    width: 445px;
+}
+@media (max-width : 540px) {
+    .landingimg{
+        display: flex !important;
+        justify-content: center !important;
+    }
+}
+@media (max-width : 430px) {
+    .landingimg{
+        transform: scale(0.5) translate(50px , 0) !important;
+    }
+}
+@media (max-width : 300px) {
+    .landingimg{
+        transform: scale(0.5) translate(75px , 0) !important;
+    }
+}
+/*aboutcontent*/
+.about {
+    margin-top: 75px ;
+    text-align: center;
+}
+@media (min-width : 430px ) and (max-width : 540px) {
+    .about{
+        margin-top: 390px !important;
+    }
+}
+@media (max-width : 430px) {
+    .about{
+        margin-top: 320px ;
+    }
+}
+.about .headertitle h1 {
+    color: rgb(190, 190, 190);
+}
+.about p {
+    font-size: 30px;
+    text-align: left;
+    color: rgb(202, 199, 199);
+    text-transform: capitalize;
+}
