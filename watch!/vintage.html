@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="style/store.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;0,1000;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900;1,1000&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="images/logoicon.png">
+    <link rel="stylesheet" href="style/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WATCH!</title>
+</head>
+<body>
+    <!--header-->
+    <div class="header">
+        <div class="container">
+            <a href="vintage.html" style="color: #D11520;">vintage</a>
+            <a href="women.html" >women</a>
+            <div><img src="images/logo.png" alt=""></div>
+            <a href="men.html">men</a>
+            <a href="luxury.html" >luxury</a>
+        </div>
+    </div>
+    <!--hero section-->
+    <div class="storebody">
+        <div class="container">
+            <div class="filters">
+                <div class="filterstab">
+                    <i class="fa-solid fa-filter"></i>
+                    <p>filters</p>
+                </div>
+                <div class="checkboxes">
+                    <div>
+                        <h3>categories</h3>
+                        <label for="classic">
+                            <input type="checkbox" id="classic" class="check c">
+                            <span class="checkmark"></span>
+                            <img class="checkimg" src="images/checkmark.png" alt="">
+                            classic (men)
+                        </label>
+                        <label for="luxury">
+                            <input type="checkbox" id="luxury" class="check c">
+                            <span class="checkmark"></span>
+                            <img class="checkimg" src="images/checkmark.png" alt="">
+                            luxury
+                        </label>
+                        <label for="fashion">
+                            <input type="checkbox" id="fashion" class="check c">
+                            <span class="checkmark"></span>
+                            <img class="checkimg" src="images/checkmark.png" alt="">
+                            fashion
+                        </label>
+                        <label for="vintage">
+                            <input type="checkbox" id="vintage" class="check c" checked="checked">
+                            <span class="checkmark"></span>
+                            <img class="checkimg" src="images/checkmark.png" alt="">
+                            vintage
+                        </label>
+                    </div>
+                    <hr>
+                    <div>
+                        <h3>gender</h3>
+                        <label for="male">
+                            <input type="checkbox" id="male" class="check g">
+                            <span class="checkmark"></span>
+                            <img class="checkimg" src="images/checkmark.png" alt="">
+                            male</label>
+                        <label for="female">
+                            <input type="checkbox" id="female" class="check g">
+                            <span class="checkmark"></span>
+                            <img class="checkimg" src="images/checkmark.png" alt="">
+                            female</label>
+                    </div>
+                    <hr>
+                    <div>
+                        <h3>strap</h3>
+                        <label for="metal">
+                            <input type="checkbox" id="metal" class="check s">
+                            <span class="checkmark"></span>
+                            <img class="checkimg" src="images/checkmark.png" alt="">
+                            metal
+                        </label>
+                        <label for="leather">
+                            <input type="checkbox" id="leather" class="check s">
+                            <span class="checkmark"></span>
+                            <img class="checkimg" src="images/checkmark.png" alt="">
+                            leather
+                        </label>
+                        <hr>
+                        <label for="all">
+                            <input type="checkbox" id="all" class="check s"  >
+                            all watches
+                            <span class="checkmark"></span>
+                            <img class="checkimg" src="images/checkmark.png" alt="">
+                        </label>
+                    </div>
+    
+                </div>
+            </div>
+            <div class="products">
+                <div class="searchbar">
+                    <input type="search" id="search" placeholder="search watch by name ex:(try praiano)">
+
+                </div>
+                <div class="productstwo">
+                    <div class="classic male leather all" style="display: none;" id="portofino">
+                        <img src="images/watches/DreamShaper_v5_black_leather_braclet_white_hand_watch_preview_0.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Portofino</h3>
+                            <p>brown leather strap with silver parts</p>
+                        </div>
+                    </div>
+                    <div class="classic male leather all" style="display: none;" id="alberobello">
+                        <img src="images/watches/DreamShaper_v5_black_leather_braclet_white_hand_watch_preview_2.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Alberobello</h3>
+                            <p>black leeather strap with silver parts</p>
+                        </div>
+                    </div>
+                    <div class="classic male leather all" style="display: none;" id="castelluccio">
+                        <img src="images/watches/DreamShaper_v5_black_leather_braclet_white_hand_watch_preview_3.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Castelluccio</h3>
+                            <p>red marble watch with silver leather strap</p>
+                        </div>
+                    </div>
+                    <div class="fashion female leather all" style="display: none;" id="pietrapertosa">
+                        <img src="images/watches/DreamShaper_v5_hand_watch_preview_0.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Pietrapertosa</h3>
+                            <p>beautiful marble-strap watch</p>
+                        </div>
+                    </div>
+                    <div class="fashion female leather all" style="display: none;" id="cefalù">
+                        <img src="images/watches/DreamShaper_v5_hand_watch_preview_1.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Cefalù</h3>
+                            <p>all pink watch ,with monochrome-strap</p>
+                        </div>
+                    </div>
+                    <div class="fashion female leather all" style="display: none;" id="sorrento">
+                        <img src="images/watches/DreamShaper_v5_hand_watch_preview_4.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Sorrento</h3>
+                            <p>red strap with diamond stones frame</p>
+                        </div>
+                    </div>
+                    <div class="fashion female leather all" style="display: none;" id="polignano">
+                        <img src="images/watches/DreamShaper_v5_hand_watch_preview_5.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Polignano</h3>
+                            <p>red strap with diamond stones frame</p>
+                        </div>
+                    </div>
+                    <div class="luxury male metal all" style="display: none;" id="taormina">
+                        <img src="images/watches/DreamShaper_v5_hand_watch_preview_image_0.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Taormina</h3>
+                            <p>brown red watch with silver metal strap</p>
+                        </div>
+                    </div>
+                    <div class="luxury male metal all" style="display: none;" id="praiano">
+                        <img src="images/watches/DreamShaper_v5_hand_watch_preview_image_1.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Praiano</h3>
+                            <p>rust red watch with silver metal strap</p>
+                        </div>
+                    </div>
+                    <div class="luxury male metal all" style="display: none;" id="sperlonga">
+                        <img src="images/watches/last silver watch.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Sperlonga</h3>
+                            <p>minimalist classic watch with silver metal strap</p>
+                        </div>
+                    </div>
+                    <div class="vintage male leather all" style="display: none;" id="saluzzo">
+                        <img src="images/watches/vintage1.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Saluzzo</h3>
+                            <p>vintage minimalist watch with black leather strap</p>
+                        </div>
+                    </div>
+                    <div class="vintage male leather all" style="display: none;" id="vernazza">
+                        <img src="images/watches/vintage2.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Vernazza</h3>
+                            <p>vitage minimalist watch with black leather strap</p>
+                        </div>
+                    </div>
+                    <div class="vintage male leather all" style="display: none;" id="belluno">
+                        <img src="images/watches/vintage3.jpg" alt="">
+                        <div>
+                            <h3 class="producttitle">Belluno</h3>
+                            <p>vintage watch with green crocodile leather strap</p>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+    </div>
+    <!--script-->
+    <script src="script2.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

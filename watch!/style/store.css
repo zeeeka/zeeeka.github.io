@@ -1,0 +1,254 @@
+:root{
+    --main-color : #00846C ;
+    --main-light : #D6F8FA;
+    --black-text : #003128;
+    --light-text : #a9e9dd ;
+}
+input{
+    cursor: pointer;
+    visibility: hidden;
+}
+.storebody {
+    background-image: url('../images/background/bg.jpg');
+    background-size: auto;
+    padding-top: 64px;
+    min-height: 100vh;
+}
+.storebody .container {
+    display: flex;
+    gap: 64px;
+}
+@media (max-width:871px) {
+    .storebody .container {
+        align-items: center;
+        justify-content: center;
+    }
+}
+/*products*/
+.products {
+     width: 90%;
+}
+.productstwo{
+    width: 90%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+.productstwo > div {
+    width: 200px;
+    height: fit-content;
+    margin: 16px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
+.productstwo > div:hover img {
+    transform: scale(1.1);
+}
+.productstwo div div {
+    width: fit-content;
+}
+.productstwo div div h3 {
+    margin-bottom: 5px;
+    color: var(--black-text);
+}
+.productstwo div div p {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.808);
+    height: 50px;
+}
+.productstwo div img {
+    width: 100%;
+    transition: 0.3s;
+    border-radius: 10px;
+}
+@media (max-width:1249px) {
+    .productstwo > div {
+        width: 175px;
+        margin: 8px;
+    }
+}
+@media (max-width:1080px) {
+    .productstwo > div {
+        width: 150px;
+        margin: 8px;
+    }
+}
+@media (max-width:975px) {
+    .productstwo > div {
+        width: 125px;
+        margin: 8px;
+    }
+    .productstwo div div p {
+        font-size: 10px;
+    }
+}
+@media (max-width:497px) {
+    .productstwo > div {
+        width: 150px;
+        margin: 4px;
+    }
+    .productstwo div div h3 {
+        font-size: 12px;
+    }
+}
+@media (max-width:396px) {
+    .productstwo > div {
+        width: 110px;
+        margin: 4px;
+    }
+}
+/*filters*/
+.filters {
+    width: 10%;
+    background-color: white;
+    padding: 40px;
+    height: fit-content;
+    margin-top: 16px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+.filterstab{
+    color: var(--black-text);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+.filters:hover > .checkboxes{
+    display: block;
+}
+.checkboxes{
+    display: none;
+    transition: 0.3s;
+}
+.filters p {
+    margin: 0;
+}
+.filters div label {
+    position: relative;
+    display: flex;
+    margin-bottom: 22px;
+}
+.filters div span {
+    position: absolute;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border: 2px solid var(--main-color);
+    border-radius: 2px;
+    left: -8px;
+    transition: 0.3s;
+}
+.filters div label:hover span {
+    background-color: #ddd;
+}
+.filters div label input:checked ~ span {
+    background-color: var(--main-color);
+    border-color: var(--black-text);
+}
+label img {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    top: -10px;
+    left: -13px;
+    visibility: hidden;
+}
+.filters div label input:checked ~ img {
+    visibility: visible;
+}
+/*search bar*/
+.searchbar{
+    background-color: white;
+    width: 100%;
+    height: 70px;
+    margin-top: 16px;
+    border-radius: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+@media (max-width:871px) {
+    .searchbar{
+        display: none;
+    }
+    .storebody .container {
+        flex-direction: column;
+    }
+    .filters{
+        width: 80%;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+    }
+    .filters hr{
+        display: none;
+    }
+    .filters h3 {
+        font-size: 15px;
+    }
+    .filters div label {
+        font-size: 10px;
+        margin-bottom: 10px;
+    }
+    .filters div span {
+        width: 7.5px;
+        height: 7.5px;
+        border: 1px solid var(--main-color);
+        left: -4px;
+    }
+    label img {
+        width: 17.5px;
+        height: 17.5px;
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        visibility: hidden;
+    }
+    .products{
+        width: 100%;
+    }
+    .productstwo{
+        margin: 0;
+        width: 100%;
+    }
+}
+.searchbar input {
+    visibility: visible;
+    width: 95%;
+    height: 65%;
+    border-radius: 35px;
+    background-color:white;
+    border: 2px solid var(--main-color);
+    background-clip: padding-box;
+    padding:16px;
+}
+@media (max-width:871px) {
+    .searchbar input {
+        width: 90%;
+    }
+}
+.searchbar input::placeholder {
+    color: var(--black-text);
+    font-size: 15px;
+}
+@media (max-width:636px) {
+    .searchbar{
+        transform: scale(0.9);
+    }
+    .searchbar input::placeholder {
+        font-size: 10px;
+    }
+}
+@media (max-width:494px) {
+    .searchbar{
+        transform: scale(0.8);
+    }
+    .searchbar input::placeholder {
+        font-size: 6px;
+    }
+}

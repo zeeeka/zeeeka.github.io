@@ -38,14 +38,3 @@ setInterval(function(){
     }
 } , 1000)
 
-
-/*longtext*/
-let longText = document.getElementsByClassName('longtext')[0]
-let media = window.matchMedia('(max-width : 980px)')
-setInterval(() => {
-    if(media.matches){
-        longText.innerHTML = "I’m a Front-end developer and web designer"
-    }else {
-        longText.innerHTML = "I’m a Front-end developer<br>and web designer"
-    }
-} , 1000);

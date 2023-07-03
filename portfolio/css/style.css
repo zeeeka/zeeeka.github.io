@@ -1,5 +1,6 @@
 *{
     font-family: 'Kanit', sans-serif;
+    text-transform: capitalize;
 }
 body{
     background-color: #141414;
@@ -338,16 +339,16 @@ ul{
     z-index: -3;
 }
 .pimg div {
-    height: 350px;
+    height: 400px;
     width: 340px;
     position: absolute;
-    top: -13px;
+    top: -63px;
     right: 0;
     z-index: 3;
     overflow: hidden;
 }
 .pimg div img {
-    width: 100%;
+    width: 105%;
     bottom: -110%;
     position: absolute;
     animation: imgappear 1s 1s forwards;
@@ -411,24 +412,94 @@ ul{
 .projects .container {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 18px;
 }
 .project {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 10px 10px 40px rgba(255, 255, 255, 0.062);
+    width: fit-content;
+    margin-bottom: 32px;
 }
 .project .firstsection {
-    width: 309.5px;
-    height: 303px;
-    background-color: #A1A1A1;
     position: relative;
     z-index: 10;
+    height: 400px;
+    width: 400px;
+}
+.project:first-child .firstsection{
+    background-image: url('../images/watch\ project.jpg');
+    background-size: cover;
+}
+.project:nth-child(2) .firstsection{
+    background-image: url('../images/projrct\ two.jpg');
+    background-size: cover;
 }
 .project .secondsection {
-    width: 929px;
-    height: 303px;
+    width: 368px ;
+    height: 368px ;
     background-color: #333333;
     position: relative;
     z-index: 10;
+    padding: 16px;
+}
+.project .secondsection p {
+    color: #cccccc;
+    margin: 0;
+}
+.project .secondsection ul {
+    color: #cccccc;
+    list-style-type:disc !important;
+}
+.project .secondsection h3 {
+    color: rgb(221, 221, 221);
+    font-weight: light;
+    font-size: 25px;
+}
+.project .secondsection a {
+    background-color: #EE4A26;
+    color: #ffe3dc;
+    padding: 16px;
+    border-radius: 10px;
+    position: absolute;
+    bottom: 32px;
+    right: 32px;
+    text-decoration: none;
+    font-size: 18px;
+    box-shadow: 3px 3px 10px rgba(255, 255, 255, 0.123);    
+}
+@media (max-width:550px) {
+    .project .firstsection {
+        height: 350px;
+        width: 350px;
+    }
+    .project .secondsection {
+        width: 318px ;
+        height: 318px ;
+    }
+}
+@media (max-width:450px) {
+    .project .firstsection {
+        height: 325px;
+        width: 325px;
+    }
+    .project .secondsection {
+        width: 293px ;
+        height: 293px ;
+    }
+}
+@media (max-width:350px) {
+    .project .firstsection {
+        height: 275px;
+        width: 275px;
+    }
+    .project .secondsection {
+        width: 243px ;
+        height: 243px ;
+    }
 }
 @media (max-width : 1350px) {
     .projects .container {
@@ -439,9 +510,12 @@ ul{
     .project {
         flex-direction: column;
     }
-    .project .secondsection , .project .firstsection {
-        width: 300px;
-        height: 250px;
+    .project .secondsection a{
+        padding: 8px;
+        font-size: 12px;
+    }
+    .project .secondsection h3{
+        font-size: 20px;
     }
 }
 /*footer*/
