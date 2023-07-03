@@ -14,7 +14,7 @@ body::before {
     position: absolute;
     top: 0;
     left: 0;
-    background-image: url('/images/Dust.png');
+    background-image: url('https://github.com/zeeeka/zeeeka.github.io/blob/main/portfolio/images/Dust.png');
     background-size: cover;
 }
 ul{
