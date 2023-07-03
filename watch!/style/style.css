@@ -39,6 +39,9 @@ ul{
     width: 200px;
     object-fit: contain;
 }
+#imagelogo {
+    cursor: pointer;
+}
 .header .container a {
     text-decoration: none;
     color: #F6F6F6;
