@@ -56,3 +56,14 @@ for (let i in listItem) {
         /*change picture*/
     }
 }
+
+
+
+/*logo click to home page*/
+
+
+let logo = document.getElementById('imagelogo')
+
+logo.onclick = ()=>{
+    window.location.href = 'https://zeeeka.github.io/watch!/index.html' ;
+}

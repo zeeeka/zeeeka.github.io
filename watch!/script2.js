@@ -56,3 +56,17 @@ for (let i in boxes){
 
     
 }
+
+
+
+
+
+
+/*logo click to home page*/
+
+
+let logo = document.getElementById('imagelogo')
+
+logo.onclick = ()=>{
+    window.location.href = 'https://zeeeka.github.io/watch!/index.html' ;
+}
