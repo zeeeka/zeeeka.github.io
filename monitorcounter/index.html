@@ -7,25 +7,51 @@
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f0f2f5;
+        background-color: #f4f6f8;
         display: flex;
         justify-content: center;
-        padding: 50px 20px;
+        padding: 30px 20px;
     }
 
     .container {
         background-color: #fff;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         width: 100%;
-        max-width: 900px;
+        max-width: 950px;
     }
 
     h1 {
         text-align: center;
-        margin-bottom: 30px;
-        color: #333;
+        margin-bottom: 20px;
+        color: #1a73e8;
+    }
+
+    .daily-counter {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #e1f0ff;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .daily-counter button {
+        background-color: #ff4d4f;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 12px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .daily-counter button:hover {
+        background-color: #d9363e;
     }
 
     .employee-list {
@@ -37,21 +63,23 @@
     .employee {
         display: flex;
         flex-direction: column;
-        padding: 15px 20px;
-        background-color: #e8f0fe;
-        border-radius: 8px;
-        transition: background-color 0.3s;
+        padding: 20px 25px;
+        background-color: #f9fbff;
+        border-left: 5px solid #1a73e8;
+        border-radius: 10px;
+        transition: all 0.3s;
     }
 
     .employee:hover {
-        background-color: #d2e3fc;
+        background-color: #eef4ff;
+        transform: scale(1.01);
     }
 
     .employee-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
         flex-wrap: wrap;
     }
 
@@ -69,14 +97,14 @@
 
     .counter {
         font-weight: bold;
-        font-size: 1.1em;
-        width: 30px;
+        font-size: 1.2em;
+        width: 35px;
         text-align: center;
     }
 
     button {
-        padding: 5px 12px;
-        font-size: 1em;
+        padding: 6px 14px;
+        font-size: 0.95em;
         background-color: #1a73e8;
         color: #fff;
         border: none;
@@ -138,12 +166,29 @@
         border-radius: 3px;
         cursor: pointer;
     }
+
+    footer {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 0.9em;
+        color: #555;
+        border-top: 1px solid #ccc;
+        padding-top: 15px;
+        font-style: italic;
+    }
 </style>
 </head>
 <body>
 <div class="container">
     <h1>Monitor Assignment Counter For January 2026</h1>
+    <div class="daily-counter">
+        Total Monitors Today: <span id="dailyCounter">0</span>
+        <button onclick="resetDailyCounter()">Reset</button>
+    </div>
     <div class="employee-list" id="employeeList"></div>
+    <footer>
+        Omar Essam Zakaria | Quality Assurance Analyst @ IHG - InterContinental Hotels Group
+    </footer>
 </div>
 
 <script>
@@ -151,81 +196,13 @@
 const employees = [
     {bms:"6010910", name:"Abdelrahman Diab", prodDate:"23/07/2025"},
     {bms:"6008171", name:"Ahmed Sobeih", prodDate:"14/07/2025"},
-    {bms:"6010918", name:"Ahmed Ghobashy", prodDate:"23/07/2025"},
-    {bms:"5130480", name:"Aya Megahed", prodDate:"16/06/2025"},
-    {bms:"6010925", name:"Eman Ahmed", prodDate:"23/07/2025"},
-    {bms:"6010928", name:"Eyad Elzaiaty", prodDate:"23/07/2025"},
-    {bms:"5972350", name:"Ezzeldin Hassan", prodDate:"16/06/2025"},
-    {bms:"5968193", name:"Fatma Elrefaey", prodDate:"16/06/2025"},
-    {bms:"6010931", name:"Khadija Elsebaei", prodDate:"23/07/2025"},
-    {bms:"5974279", name:"Mohamed Abdelgalil", prodDate:"16/06/2025"},
-    {bms:"5972352", name:"Mohamed Obeid", prodDate:"16/06/2025"},
-    {bms:"5972356", name:"Mohamed Gadallah", prodDate:"16/06/2025"},
-    {bms:"6008206", name:"Rahma Abdelghany", prodDate:"14/07/2025"},
-    {bms:"6008207", name:"Salma Mohamed", prodDate:"14/07/2025"},
-    {bms:"5976968", name:"Samar Mahran", prodDate:"16/06/2025"},
-    {bms:"5974280", name:"Seif Elsayed", prodDate:"16/06/2025"},
-    {bms:"6003294", name:"Abdelrahman Shalaby", prodDate:"14/07/2025"},
-    {bms:"6003298", name:"Abdelrahman Afifi", prodDate:"14/07/2025"},
-    {bms:"5937494", name:"Abdelrahman Ibrahim", prodDate:"26/05/2025"},
-    {bms:"6003311", name:"Abdelrahman Hussein", prodDate:"14/07/2025"},
-    {bms:"6003323", name:"Abdullah Sayed", prodDate:"14/07/2025"},
-    {bms:"5937501", name:"Ahmed Taha", prodDate:"26/05/2025"},
-    {bms:"6003328", name:"Ammar Ahmed", prodDate:"14/07/2025"},
-    {bms:"6003335", name:"Basma Othman", prodDate:"14/07/2025"},
-    {bms:"5913368", name:"Belal Nafie", prodDate:"28/04/2025"},
-    {bms:"5913369", name:"Kirolous Abdelmasih", prodDate:"28/04/2025"},
-    {bms:"6012436", name:"Mohamed Abbas", prodDate:"23/07/2025"},
-    {bms:"5937509", name:"Mohamed Dahy", prodDate:"26/05/2025"},
-    {bms:"5905740", name:"Mohamed Ali", prodDate:"28/04/2025"},
-    {bms:"5937511", name:"Omar Hussein", prodDate:"26/05/2025"},
-    {bms:"6010932", name:"Sawsan Hussein", prodDate:"23/07/2025"},
-    {bms:"5905742", name:"Shorouk Abdelhamid", prodDate:"28/04/2025"},
-    {bms:"6010941", name:"Ziad Shilan", prodDate:"23/07/2025"},
-    {bms:"5972321", name:"Ahmed Kassem", prodDate:"16/06/2025"},
-    {bms:"6008155", name:"Ahmed Hassan", prodDate:"14/07/2025"},
-    {bms:"6014920", name:"Ahmed Mohamed Ali", prodDate:"23/07/2025"},
-    {bms:"6012439", name:"Ahmed Youssef", prodDate:"23/07/2025"},
-    {bms:"4875594", name:"Enas Salem", prodDate:"28/04/2025"},
-    {bms:"6003343", name:"Gamal Mohamed", prodDate:"14/07/2025"},
-    {bms:"5633871", name:"Habiba Rashwan", prodDate:"16/06/2025"},
-    {bms:"5939059", name:"Karim Selim", prodDate:"26/05/2025"},
-    {bms:"5937507", name:"Menna Abdelrahman", prodDate:"26/05/2025"},
-    {bms:"5968196", name:"Mohamed Eltony", prodDate:"16/06/2025"},
-    {bms:"5512682", name:"Mohamed Khattab", prodDate:"14/07/2025"},
-    {bms:"6003357", name:"Mohamed Mahmoud", prodDate:"14/07/2025"},
-    {bms:"6003361", name:"Mohamed Mohamed", prodDate:"14/07/2025"},
-    {bms:"6014919", name:"Mohrael Ibrahim", prodDate:"23/07/2025"},
-    {bms:"5318630", name:"Mostafa Abdelbary", prodDate:"16/06/2025"},
-    {bms:"6003363", name:"Reham Ramadan", prodDate:"14/07/2025"},
-    {bms:"5937540", name:"Shahd Hassan", prodDate:"26/05/2025"},
-    {bms:"5908489", name:"Tasneem Mahmoud", prodDate:"28/04/2025"},
-    {bms:"5974276", name:"Abdelrahman Desouky", prodDate:"16/06/2025"},
-    {bms:"6024457", name:"Abdelrahman-Hussein Omar", prodDate:"11/08/2025"},
-    {bms:"5937497", name:"Abdelrahman Fakhreldin", prodDate:"26/05/2025"},
-    {bms:"6024461", name:"Ali Mosaad", prodDate:"11/08/2025"},
-    {bms:"6024463", name:"Engy Khorshed", prodDate:"11/08/2025"},
-    {bms:"5937503", name:"Hadeer Shaarawy", prodDate:"26/05/2025"},
-    {bms:"6025948", name:"Kirollos Bekhit", prodDate:"11/08/2025"},
-    {bms:"6024472", name:"Lama Saeed", prodDate:"11/08/2025"},
-    {bms:"6024474", name:"Mahmoud Hassan", prodDate:"11/08/2025"},
-    {bms:"6024475", name:"Mohad Eltalith", prodDate:"11/08/2025"},
-    {bms:"6024478", name:"Mohamed Metwally", prodDate:"11/08/2025"},
-    {bms:"6024481", name:"Nancy Ismail", prodDate:"11/08/2025"},
-    {bms:"6024482", name:"Omar Ahmed", prodDate:"11/08/2025"},
-    {bms:"6024484", name:"Omnia Mohamed", prodDate:"11/08/2025"},
-    {bms:"5972362", name:"Sameh Saad", prodDate:"16/06/2025"},
-    {bms:"5183248", name:"Ahmed Aboelkheir", prodDate:"22/09/2025"},
-    {bms:"5122602", name:"Ahmed Ibrahim", prodDate:"22/09/2025"},
-    {bms:"6073794", name:"Alaa Mekawy", prodDate:"22/09/2025"},
-    {bms:"5170235", name:"Karim Elsayed", prodDate:"22/09/2025"},
-    {bms:"6073795", name:"Karim Sharshira", prodDate:"22/09/2025"},
-    {bms:"4940910", name:"Mohamed Abdelhamid", prodDate:"22/09/2025"}
+    // ... (keep all your employees as before)
 ];
 
 // Load saved counters and comments from localStorage or initialize
 let counters = JSON.parse(localStorage.getItem('monitorCounters')) || {};
 let comments = JSON.parse(localStorage.getItem('employeeComments')) || {};
+let dailyCounter = JSON.parse(localStorage.getItem('dailyCounter')) || 0;
 
 employees.forEach(emp => {
     if (!(emp.bms in counters)) counters[emp.bms] = 0;
@@ -244,6 +221,7 @@ function daysFromProduction(prodDateStr){
 
 // Render employees
 function renderEmployees(){
+    document.getElementById('dailyCounter').innerText = dailyCounter;
     const employeeList = document.getElementById('employeeList');
     const sortedEmployees = [...employees].sort((a,b) => counters[a.bms] - counters[b.bms]);
 
@@ -256,8 +234,7 @@ function renderEmployees(){
             `<div class="comment">
                 <span class="comment-date">${c.date}:</span>${c.text}
                 <button class="delete-comment-btn" onclick="deleteComment('${emp.bms}', ${idx})">X</button>
-            </div>`
-        ).join('');
+            </div>`).join('');
 
         div.innerHTML = `
             <div class="employee-header">
@@ -281,7 +258,9 @@ function renderEmployees(){
 // Increment counter
 function incrementCounter(bms){
     counters[bms]++;
+    dailyCounter++;
     localStorage.setItem('monitorCounters', JSON.stringify(counters));
+    localStorage.setItem('dailyCounter', JSON.stringify(dailyCounter));
     renderEmployees();
 }
 
@@ -289,7 +268,18 @@ function incrementCounter(bms){
 function decrementCounter(bms){
     if(counters[bms] > 0){
         counters[bms]--;
+        if(dailyCounter > 0) dailyCounter--;
         localStorage.setItem('monitorCounters', JSON.stringify(counters));
+        localStorage.setItem('dailyCounter', JSON.stringify(dailyCounter));
+        renderEmployees();
+    }
+}
+
+// Reset daily counter
+function resetDailyCounter(){
+    if(confirm("Are you sure you want to reset today's counter?")){
+        dailyCounter = 0;
+        localStorage.setItem('dailyCounter', JSON.stringify(dailyCounter));
         renderEmployees();
     }
 }
