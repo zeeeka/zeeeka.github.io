@@ -193,7 +193,6 @@
 
 <script>
 // Employee list with BMS ID, Name, Production Date
-// Employee list with BMS ID, Name, Production Date
 const employees = [
     {bms:"6010910", name:"Abdelrahman Diab", prodDate:"23/07/2025"},
     {bms:"6008171", name:"Ahmed Sobeih", prodDate:"14/07/2025"},
@@ -274,6 +273,9 @@ let counters = JSON.parse(localStorage.getItem('monitorCounters')) || {};
 let comments = JSON.parse(localStorage.getItem('employeeComments')) || {};
 let dailyCounter = JSON.parse(localStorage.getItem('dailyCounter')) || 0;
 
+// NEW: total monitors counter
+let totalCounter = JSON.parse(localStorage.getItem('totalCounter')) || 0;
+
 employees.forEach(emp => {
     if (!(emp.bms in counters)) counters[emp.bms] = 0;
     if (!(emp.bms in comments)) comments[emp.bms] = [];
@@ -292,6 +294,18 @@ function daysFromProduction(prodDateStr){
 // Render employees
 function renderEmployees(){
     document.getElementById('dailyCounter').innerText = dailyCounter;
+
+    // NEW: display total counter
+    if(!document.getElementById('totalCounterDisplay')){
+        const div = document.createElement('div');
+        div.className = 'daily-counter';
+        div.id = 'totalCounterDisplay';
+        div.innerHTML = `Total Monitors All Days: <span id="totalCounter">${totalCounter}</span>`;
+        document.querySelector('.container').insertBefore(div, document.getElementById('employeeList'));
+    } else {
+        document.getElementById('totalCounter').innerText = totalCounter;
+    }
+
     const employeeList = document.getElementById('employeeList');
     const sortedEmployees = [...employees].sort((a,b) => counters[a.bms] - counters[b.bms]);
 
@@ -323,14 +337,26 @@ function renderEmployees(){
         `;
         employeeList.appendChild(div);
     });
+
+    // NEW: add Export button if not exists
+    if(!document.getElementById('exportBtn')){
+        const exportBtn = document.createElement('button');
+        exportBtn.id = 'exportBtn';
+        exportBtn.style.marginTop = '15px';
+        exportBtn.innerText = 'Export CSV';
+        exportBtn.onclick = exportCSV;
+        document.querySelector('.container').insertBefore(exportBtn, document.querySelector('footer'));
+    }
 }
 
 // Increment counter
 function incrementCounter(bms){
     counters[bms]++;
     dailyCounter++;
+    totalCounter++; // NEW
     localStorage.setItem('monitorCounters', JSON.stringify(counters));
     localStorage.setItem('dailyCounter', JSON.stringify(dailyCounter));
+    localStorage.setItem('totalCounter', JSON.stringify(totalCounter)); // NEW
     renderEmployees();
 }
 
@@ -339,8 +365,10 @@ function decrementCounter(bms){
     if(counters[bms] > 0){
         counters[bms]--;
         if(dailyCounter > 0) dailyCounter--;
+        if(totalCounter > 0) totalCounter--; // NEW
         localStorage.setItem('monitorCounters', JSON.stringify(counters));
         localStorage.setItem('dailyCounter', JSON.stringify(dailyCounter));
+        localStorage.setItem('totalCounter', JSON.stringify(totalCounter)); // NEW
         renderEmployees();
     }
 }
@@ -374,8 +402,29 @@ function deleteComment(bms, idx){
     }
 }
 
+// NEW: Export CSV function
+function exportCSV(){
+    const rows = [["BMS ID","Name","Total Monitors"]];
+    employees.forEach(emp => {
+        rows.push([emp.bms, emp.name, counters[emp.bms]]);
+    });
+    const csvContent = "data:text/csv;charset=utf-8," + rows.map(e=>e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth()+1).padStart(2,'0');
+    const dd = String(today.getDate()).padStart(2,'0');
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `monitor_export_${yyyy}-${mm}-${dd}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 // Initial render
 renderEmployees();
 </script>
+
 </body>
 </html>
