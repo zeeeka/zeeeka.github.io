@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balanced IHG QA Tool</title>
+    <style>
+        :root {
+            --primary: #d32f2f;
+            --secondary: #2e7d32;
+            --bg: #f4f7f6;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: #333; margin: 20px; line-height: 1.4; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.9rem; }
+        
+        .section { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+        .section-header { background: #eee; padding: 10px 15px; font-weight: bold; font-size: 1rem; border-bottom: 1px solid #ddd; }
+        
+        .parameter-row { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 12px 15px; border-bottom: 1px solid #eee; transition: 0.2s; }
+        .parameter-row:last-child { border-bottom: none; }
+        .parameter-row:hover { background: #fdfdfd; }
+        
+        .param-name { font-weight: 600; display: block; color: #444; }
+        .param-desc { font-size: 0.75rem; color: #777; }
+
+        /* Button Styling */
+        .status-toggle { display: flex; gap: 5px; }
+        .btn { border: 1px solid #ccc; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; transition: 0.3s; min-width: 70px; }
+        
+        .btn-met.active { background: var(--secondary); color: white; border-color: var(--secondary); }
+        .btn-missed.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn:not(.active) { background: white; color: #888; }
+
+        .output-area { margin-top: 30px; background: #fff; border-top: 3px solid var(--primary); padding-top: 20px; }
+        textarea { width: 100%; height: 200px; border: 1px solid #ccc; border-radius: 6px; padding: 15px; font-family: 'Courier New', monospace; font-size: 0.9rem; background: #fafafa; margin-top: 10px; box-sizing: border-box; }
+        
+        .controls { display: flex; justify-content: space-between; margin-top: 15px; }
+        .btn-main { padding: 12px 25px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; }
+        .copy-btn { background: var(--secondary); }
+        .reset-btn { background: #757575; }
+
+        /* Signature Styling */
+        .signature { margin-top: 40px; text-align: center; font-size: 0.85rem; color: #888; border-top: 1px solid #eee; padding-top: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>QA Monitoring Feedback Tool</h1>
+    <div class="subtitle">Select 'Met' or 'Missed' for each parameter to generate a balanced feedback comment.</div>
+
+    <div id="qa-form"></div>
+
+    <div class="output-area">
+        <strong>Final QA Comment:</strong>
+        <textarea id="output-text" readonly></textarea>
+        <div class="controls">
+            <button class="btn-main reset-btn" onclick="resetForm()">Reset All</button>
+            <button class="btn-main copy-btn" onclick="copyText()">Copy Comment to Clipboard</button>
+        </div>
+    </div>
+
+    <div class="signature">
+        Developed By Omar Essam Zakaria | Quality Assurance Analyst @ IHG - InterContinental Hotels Group
+    </div>
+</div>
+
+<script>
+    const qaData = [
+          {  section: "IMPROVING CUSTOMER EXPERIENCE",
+            params: [
+                        { name: "IHG One Rewards Access", met: "Specialist successfully obtained the membership number or performed the required lookups.", fail: "Specialist failed to obtain membership number or perform required account lookups (2 attempts) at the start." },
+        { name: "3 seconds", met: "The call was answered promptly within the first 3 seconds.", fail: "Call was not answered within the first 3 seconds." },
+        { name: "Branded Opening", met: "Specialist correctly incorporated the Brand name and 'Reservations' in the opening spiel.", fail: "Opening spiel did not correctly incorporate the Brand name or 'Reservations' as required." },
+        { name: "Guest Name", met: "Specialist successfully addressed the guest by name during the interaction.", fail: "The specialist did not address the guest by name at least once." },
+        { name: "Communication", met: "Agent's communication was clear and professional throughout the call.", fail: "Agent's Communication wasn't clear enough and guest commented on it." },
+        { name: "Providing (recap)", met: "Specialist successfully recapped all 7 mandatory booking points.", fail: "Agent didn't recap all 7 points of recap." },
+        { name: "Providing (hotel alerts)", met: "All relevant hotel alerts were clearly mentioned to the guest.", fail: "Agent didn't mention the relevant hotel alerts." },
+        { name: "Providing (IHG One Rewards)", met: "Information regarding IHG One Rewards was clear and easy to understand.", fail: "Agent's Communication wasn't clear enough regarding IHG One Rewards and guest commented on it." },
+        { name: "Providing (Plus tax)", met: "The specialist correctly clarified if the rate was tax-inclusive or exclusive.", fail: "Agent didn't clarify if the rate is tax included or not." },
+        { name: "Providing (Average nightly rate)", met: "Rates were correctly identified as 'average nightly rates' where applicable.", fail: "The price was mentioned without mentioning that it is an average nightly rate." },
+        { name: "Providing (relevant fees (early))", met: "Early departure fees were clearly disclosed to the guest.", fail: "The early departure fees weren't mentioned." },
+        { name: "Providing (relevant fees (incidental))", met: "Incidental fee requirements were correctly explained.", fail: "Incidental fees weren't mentioned." },
+        { name: "Providing (full cancellation policy)", met: "The full and correct cancellation policy was provided.", fail: "The agent didn't mention the full correct cancellation policy." },
+        { name: "Providing (ihg.com/terms)", met: "Specialist correctly advised the guest they could read terms and conditions on ihg.com/terms.", fail: "While enrolling the guest, agent didn't mention that the guest could read the terms and conditions on ihg.com/terms." },
+        { name: "Providing (room type name)", met: "The room type name was clearly mentioned during the call.", fail: "Room type wasn't mentioned at least once during the call." },
+        { name: "Providing (rate names)", met: "The specific rate name was clearly mentioned during the call.", fail: "Rate name wasn't mentioned at least once during the call." },
+        { name: "Encoding (name)", met: "The guest's name was correctly encoded in the system.", fail: "The guest's name wasn't correctly encoded." },
+        { name: "Encoding (email)", met: "The guest's email was captured and encoded accurately.", fail: "The guest's email wasn't correctly encoded." },
+        { name: "Encoding (mailing)", met: "The guest's mailing address was correctly and accurately encoded.", fail: "The guest's mailing address wasn't correctly encoded." },
+        { name: "Encoding (opt and out)", met: "Specialist asked the guest for their preference before selecting opt-in/out options.", fail: "The opt in/out option was chosen without asking the guest." },
+            ]
+        },
+        {
+            section: "DRIVING REVENUE",
+            params: [
+                { name: "Providing a solution (Rate)", met: "Agent provided a solution that matches the guest's needs", fail: "The desired rate by the guest was not provided in the initial offer" },
+                { name: "Providing a solution (Room)", met: "Agent provided a solution that matches the guest's needs", fail: "The desired room by the guest was not provided in the initial offer" },
+                { name: "Providing a solution (Hotel)", met: "Agent provided a solution that matches the guest's needs", fail: "The desired hotel by the guest was not provided in the initial offer" },
+                { name: "Driving revenue (room)", met: "The initial offer included the most appropriate Premium room", fail: "There was a chance to include the Premium room in the initial offer" },
+                { name: "Driving revenue (value added)", met: "The initial offer included the most appropriate value-added rate", fail: "There was a chance to include the value-added rate in the initial offer" },
+                { name: "ask for the sale", met: "Agent asked for the sale immediately after each offer", fail: "There was a chance to include the value-added rate in the initial offer" },
+                { name: "understanding", met: "When faced with unclear reason for resistance agent asked to know the reason for the resistance", fail: "The agent didn't ask for the reason of resistance" },
+                { name: "Overcoming (alternative) ", met: "When faced with resistance agent overcame it by offering an alternative", fail: "Agent didn't offer an alternative" },
+                { name: "Overcoming(sense of urgency)", met: "When faced with resistance agent created a sense of urgency", fail: "sense of urgence wasn't created" },
+                { name: "Overcoming(free cancellation)", met: "Agent highlighted the free cancellation option", fail: "free cancellationoption wasn't highlighted" },
+                { name: "Overcoming(hold option)", met: "When faced with resistance agent overcame it by offering the courtesy hold option", fail: "Agent didn't highlight the courtesy hold option" },
+                { name: "offer matrix", met: "Agent chose the correct offer matrix disposition", fail: "Agent didn't choose the correct offer matrix disposition" },
+                { name: "loyalty", met: "Agent offered loyalty", fail: "Agent didn't offer loyalty" },
+
+            ]
+        },
+        {
+            section: "Others",
+            params: [
+                { name: "Assumptive Probing", met: "Agent asked Assumptive Probing question(s)", fail: "Agent didn't ask Assumptive Probing question(s)" },
+                { name: "verification", met: "Agent Followed the proper IHG One Rewards Account verification process", fail: "Agent didn't Follow the proper IHG One Rewards Account verification process" },
+                { name: "Recognize and appreciate", met: "Agent Recognized and appreciated the guest for their loyalty", fail: "Agent didn't Recognize and appreciate the guest for their loyalty" }
+            ]
+        },
+    ];
+
+    let selections = {};
+
+    function initForm() {
+        const form = document.getElementById('qa-form');
+        qaData.forEach((sec, sIdx) => {
+            const secDiv = document.createElement('div');
+            secDiv.className = 'section';
+            secDiv.innerHTML = `<div class="section-header">${sec.section}</div>`;
+            
+            sec.params.forEach((param, pIdx) => {
+                const paramId = `p-${sIdx}-${pIdx}`;
+                selections[paramId] = null; // default
+                
+                const row = document.createElement('div');
+                row.className = 'parameter-row';
+                row.innerHTML = `
+                    <div>
+                        <span class="param-name">${param.name}</span>
+                    </div>
+                    <div class="status-toggle">
+                        <button class="btn btn-met" id="met-${paramId}" onclick="updateStatus('${paramId}', 'met', ${sIdx}, ${pIdx})">Met</button>
+                        <button class="btn btn-missed" id="missed-${paramId}" onclick="updateStatus('${paramId}', 'missed', ${sIdx}, ${pIdx})">Missed</button>
+                    </div>
+                `;
+                secDiv.appendChild(row);
+            });
+            form.appendChild(secDiv);
+        });
+    }
+
+    function updateStatus(id, status, sIdx, pIdx) {
+        selections[id] = { status, textMet: qaData[sIdx].params[pIdx].met, textFail: qaData[sIdx].params[pIdx].fail };
+        
+        document.getElementById(`met-${id}`).classList.toggle('active', status === 'met');
+        document.getElementById(`missed-${id}`).classList.toggle('active', status === 'missed');
+        
+        generateComment();
+    }
+
+    function generateComment() {
+        let metList = [];
+        let failList = [];
+
+        for (let key in selections) {
+            if (selections[key]) {
+                if (selections[key].status === 'met') metList.push(selections[key].textMet);
+                else failList.push(selections[key].textFail);
+            }
+        }
+
+        let finalOutput = "QA EVALUATION SUMMARY\n======================\n\n";
+        
+        if (metList.length > 0) {
+            finalOutput += "STRENGTHS & MET EXPECTATIONS:\n";
+            metList.forEach(item => finalOutput += `✓ ${item}\n`);
+            finalOutput += "\n";
+        }
+
+        if (failList.length > 0) {
+            finalOutput += "OPPORTUNITIES FOR IMPROVEMENT:\n";
+            failList.forEach(item => finalOutput += `✗ ${item}\n`);
+            finalOutput += "\n";
+        } else if (metList.length > 0) {
+            finalOutput += "Specialist successfully met all monitored criteria during this interaction.\n";
+        }
+
+        document.getElementById('output-text').value = finalOutput;
+    }
+
+    function copyText() {
+        const copyBtn = document.querySelector('.copy-btn');
+        const textArea = document.getElementById('output-text');
+        textArea.select();
+        document.execCommand('copy');
+        copyBtn.innerText = "Copied!";
+        setTimeout(() => copyBtn.innerText = "Copy Comment to Clipboard", 2000);
+    }
+
+    function resetForm() {
+        for (let key in selections) selections[key] = null;
+        document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('output-text').value = "";
+    }
+
+    initForm();
+</script>
+</body>
+</html>
