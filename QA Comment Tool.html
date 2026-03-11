@@ -34,7 +34,7 @@
         .btn:not(.active) { background: white; color: #888; }
 
         .output-area { margin-top: 30px; background: #fff; border-top: 3px solid var(--primary); padding-top: 20px; }
-        textarea { width: 100%; height: 200px; border: 1px solid #ccc; border-radius: 6px; padding: 15px; font-family: 'Courier New', monospace; font-size: 0.9rem; background: #fafafa; margin-top: 10px; box-sizing: border-box; }
+        textarea { width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 6px; padding: 15px; font-family: 'Segoe UI', sans-serif; font-size: 0.9rem; background: #fafafa; margin-top: 10px; box-sizing: border-box; resize: vertical; }
         
         .controls { display: flex; justify-content: space-between; margin-top: 15px; }
         .btn-main { padding: 12px 25px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; }
@@ -172,23 +172,19 @@
             }
         }
 
-        let finalOutput = "QA EVALUATION SUMMARY\n======================\n\n";
+        let finalOutput = "";
         
         if (metList.length > 0) {
-            finalOutput += "STRENGTHS & MET EXPECTATIONS:\n";
-            metList.forEach(item => finalOutput += `✓ ${item}\n`);
-            finalOutput += "\n";
+            finalOutput += "STRENGTHS: " + metList.join(", ") + ". ";
         }
 
         if (failList.length > 0) {
-            finalOutput += "OPPORTUNITIES FOR IMPROVEMENT:\n";
-            failList.forEach(item => finalOutput += `✗ ${item}\n`);
-            finalOutput += "\n";
+            finalOutput += "OPPORTUNITIES: " + failList.join(", ") + ".";
         } else if (metList.length > 0) {
-            finalOutput += "Specialist successfully met all monitored criteria during this interaction.\n";
+            finalOutput += "Specialist successfully met all monitored criteria during this interaction.";
         }
 
-        document.getElementById('output-text').value = finalOutput;
+        document.getElementById('output-text').value = finalOutput.trim();
     }
 
     function copyText() {
