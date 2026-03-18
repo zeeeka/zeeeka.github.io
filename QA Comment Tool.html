@@ -15,11 +15,15 @@
         h1 { color: var(--primary); text-align: center; margin-bottom: 5px; }
         .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.9rem; }
         
+        /* Call Details Styling */
         .metadata-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
         .metadata-input { width: 100%; height: 80px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; font-size: 0.8rem; margin-bottom: 10px; resize: vertical; box-sizing: border-box; }
+        
         .parsed-results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #fff; padding: 10px; border: 1px solid #eee; border-radius: 4px; }
-        .parsed-item { font-size: 0.85rem; color: #444; }
-        .parsed-item strong { color: var(--primary); }
+        .parsed-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; color: #444; background: #f9f9f9; padding: 5px 8px; border-radius: 4px; border: 1px solid #eee; }
+        .parsed-item strong { color: var(--primary); margin-right: 5px; }
+        .copy-small { padding: 2px 6px; font-size: 0.7rem; background: #eee; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; margin-left: 10px; }
+        .copy-small:hover { background: #ddd; }
 
         .section { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
         .section-header { background: #eee; padding: 10px 15px; font-weight: bold; font-size: 1rem; border-bottom: 1px solid #ddd; }
@@ -30,6 +34,7 @@
         
         .param-name { font-weight: 600; display: block; color: #444; }
 
+        /* Section Specific Output */
         .section-feedback-area { padding: 10px 15px; background: #f9f9f9; border-top: 1px solid #eee; }
         .section-text { width: 100%; height: 40px; border: 1px solid #ccc; border-radius: 4px; padding: 5px; font-size: 0.85rem; margin-bottom: 5px; box-sizing: border-box; }
 
@@ -60,15 +65,33 @@
     <div class="metadata-section">
         <strong>Paste Call Details / Log:</strong>
         <textarea id="call-details-input" class="metadata-input" oninput="parseCallData()" placeholder="Paste the technical log here..."></textarea>
+        
         <div id="parsed-results-box" class="parsed-results">
-            <div class="parsed-item"><strong>ID:</strong> <span id="res-id">-</span></div>
-            <div class="parsed-item"><strong>Duration:</strong> <span id="res-dur">-</span></div>
-            <div class="parsed-item"><strong>Time:</strong> <span id="res-time">-</span></div>
-            <div class="parsed-item"><strong>Conf #:</strong> <span id="res-conf">-</span></div>
-            <div class="parsed-item"><strong>Whisper:</strong> <span id="res-whisper">-</span></div>
-            <div class="parsed-item"><strong>Revenue:</strong> <span id="res-rev">-</span></div>
+            <div class="parsed-item">
+                <span><strong>ID:</strong> <span id="res-id">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-id')">Copy</button>
+            </div>
+            <div class="parsed-item">
+                <span><strong>Duration:</strong> <span id="res-dur">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-dur')">Copy</button>
+            </div>
+            <div class="parsed-item">
+                <span><strong>Time:</strong> <span id="res-time">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-time')">Copy</button>
+            </div>
+            <div class="parsed-item">
+                <span><strong>Conf #:</strong> <span id="res-conf">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-conf')">Copy</button>
+            </div>
+            <div class="parsed-item">
+                <span><strong>Whisper:</strong> <span id="res-whisper">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-whisper')">Copy</button>
+            </div>
+            <div class="parsed-item">
+                <span><strong>Revenue:</strong> <span id="res-rev">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-rev')">Copy</button>
+            </div>
         </div>
-        <button class="btn" style="margin-top:10px; width:100%" onclick="copyParsedData()">Copy Call Details Summary</button>
     </div>
 
     <div id="qa-form"></div>
@@ -153,7 +176,6 @@
             sec.params.forEach((param, pIdx) => {
                 const paramId = `p-${sIdx}-${pIdx}`;
                 selections[paramId] = null; 
-                
                 const row = document.createElement('div');
                 row.className = 'parameter-row';
                 row.innerHTML = `
@@ -182,51 +204,37 @@
         
         // Interaction ID
         const idMatch = input.match(/Interaction ID\s*([a-z0-9-]+)/i);
-        const intId = idMatch ? idMatch[1] : "-";
+        document.getElementById('res-id').innerText = idMatch ? idMatch[1] : "-";
 
-        // Duration (converting MM:SS to HH:MM:SS)
+        // Duration (to HH:MM:SS)
         const durMatch = input.match(/Duration\s*(\d+):(\d+)/i);
-        let duration = "-";
         if (durMatch) {
             let totalSeconds = (parseInt(durMatch[1]) * 60) + parseInt(durMatch[2]);
-            duration = new Date(totalSeconds * 1000).toISOString().substr(11, 8);
-        }
+            document.getElementById('res-dur').innerText = new Date(totalSeconds * 1000).toISOString().substr(11, 8);
+        } else { document.getElementById('res-dur').innerText = "-"; }
 
         // Call Time
         const timeMatch = input.match(/at\s*(\d+:\d+:\d+\s*[APM]+)/i);
-        const callTime = timeMatch ? timeMatch[1] : "-";
+        document.getElementById('res-time').innerText = timeMatch ? timeMatch[1] : "-";
 
         // Confirmation Number
         const confMatch = input.match(/confirmationNumber\s*([A-Z0-9]+)/i);
-        const confNum = confMatch ? confMatch[1] : "Not Booked";
+        document.getElementById('res-conf').innerText = confMatch ? confMatch[1] : "Not Booked";
 
-        // Whisper Display
-        const whisperMatch = input.match(/whisperDisplay\s*([^\s\n]+)/i);
-        const whisper = whisperMatch ? whisperMatch[1] : "-";
+        // Whisper Display - Refined to match IHG Voice VIEFA HI format
+        const whisperMatch = input.match(/IHG Voice\s+[^|\n]+/i);
+        document.getElementById('res-whisper').innerText = whisperMatch ? whisperMatch[0].trim() : "-";
 
         // Revenue
         const revMatch = input.match(/totalRevenueAmount\s*([\d.]+)/i);
-        const revenue = revMatch ? revMatch[1] : "-";
-
-        document.getElementById('res-id').innerText = intId;
-        document.getElementById('res-dur').innerText = duration;
-        document.getElementById('res-time').innerText = callTime;
-        document.getElementById('res-conf').innerText = confNum;
-        document.getElementById('res-whisper').innerText = whisper;
-        document.getElementById('res-rev').innerText = revenue;
+        document.getElementById('res-rev').innerText = revMatch ? revMatch[1] : "-";
     }
 
-    function copyParsedData() {
-        const id = document.getElementById('res-id').innerText;
-        const dur = document.getElementById('res-dur').innerText;
-        const time = document.getElementById('res-time').innerText;
-        const conf = document.getElementById('res-conf').innerText;
-        const whisper = document.getElementById('res-whisper').innerText;
-        const rev = document.getElementById('res-rev').innerText;
-
-        const text = `Interaction ID: ${id}\nDuration: ${dur}\nCall Time: ${time}\nConfirmation Number: ${conf}\nWhisper Display: ${whisper}\nTotal Revenue: ${rev}`;
-        navigator.clipboard.writeText(text);
-        alert("Call details copied!");
+    function copyValue(id) {
+        const val = document.getElementById(id).innerText;
+        if(val !== "-") {
+            navigator.clipboard.writeText(val);
+        }
     }
 
     function updateStatus(id, status, sIdx, pIdx) {
@@ -251,14 +259,13 @@
             }
         }
 
-        // Full output
         let finalOutput = "";
         if (metList.length > 0) finalOutput += "STRENGTHS: " + metList.join(", ") + ". ";
         if (failList.length > 0) finalOutput += "OPPORTUNITIES: " + failList.join(", ") + ".";
         else if (metList.length > 0) finalOutput += "Specialist successfully met all monitored criteria during this interaction.";
         document.getElementById('output-text').value = finalOutput.trim();
 
-        // Section outputs (Clean without Strengths/Opportunities labels)
+        // Section outputs (Clean - no labels)
         sectionData.forEach((list, idx) => {
             document.getElementById(`section-out-${idx}`).value = list.join(", ");
         });
@@ -276,8 +283,7 @@
         document.getElementById('output-text').value = "";
         document.getElementById('call-details-input').value = "";
         document.querySelectorAll('.section-text').forEach(t => t.value = "");
-        document.querySelectorAll('.parsed-item span').forEach(s => s.innerText = "-");
-        parseCallData();
+        document.querySelectorAll('.parsed-item span[id^="res-"]').forEach(s => s.innerText = "-");
     }
 
     initForm();
