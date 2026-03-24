@@ -6,3 +6,4 @@ torch
 transformers
 datasets
 scikit-learn
+pip install gradio transformers torch pandas scikit-learn datasets
