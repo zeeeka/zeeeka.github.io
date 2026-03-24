@@ -8,7 +8,7 @@ import os
 import gc
 import re
 
-# --- 1. THE CLEANING FUNCTION ---
+# --- 1. THE CLEANING FUNCTIONS ---
 
 def clean_transcript(text):
     """
@@ -19,17 +19,15 @@ def clean_transcript(text):
         return ""
 
     # Step A: Remove the Header Block
-    # This removes everything from "Interaction Type" up to "Participant Text"
     text = re.sub(r'Interaction Type:.*?Date/Time\s+Participant Type\s+Participant Text', '', text, flags=re.DOTALL)
 
     # Step B: Remove Speaker Labels & Timestamps
-    # Patterns to match: 00:07 Internal [Name], 00:14 External [Info]
     patterns_to_remove = [
         r'\d{2}:\d{2}\s+Internal\s+.*?(?=\s+‪|\s+[a-zA-ZäöüÄÖÜ])',
         r'\d{2}:\d{2}\s+External\s+.*?(?=\s+‪|\s+[a-zA-ZäöüÄÖÜ])',
         r'Internal\s+.*?(?=\s+‪)',
         r'External\s+.*?(?=\s+‪)',
-        r'‪', # Special Unicode characters
+        r'‪', 
         r'‬'
     ]
     
@@ -37,42 +35,34 @@ def clean_transcript(text):
         text = re.sub(pattern, '', text)
 
     # Step C: Final Polish
-    # Remove any lingering double spaces and strip edges
     text = re.sub(r'\s+', ' ', text).strip()
     
     return text
+
+def get_last_quarter(text):
+    """Slices the last 25% to focus on the outcome."""
+    start_index = int(len(text) * 0.75)
+    return text[start_index:]
 
 # --- 2. DATA UTILITIES ---
 
 def load_and_preprocess_csv(file_path):
     try:
-        # Standardize loading for German Excel CSVs
         df = pd.read_csv(file_path, sep=None, engine='python', encoding='utf-8', on_bad_lines='skip')
     except UnicodeDecodeError:
         df = pd.read_csv(file_path, sep=None, engine='python', encoding='latin1', on_bad_lines='skip')
     
-    # Grab last two columns (Transcript and Label)
+    # Grab last two columns (Transcript and Label) for training
     new_df = df.iloc[:, [-2, -1]].copy()
     new_df.columns = ['transcript', 'label']
     
-    print("\n--- Cleaning & Pre-processing ---")
-    # 1. Clean the text (Remove headers/names)
+    print("\n--- Cleaning & Pre-processing Training Data ---")
     new_df['transcript'] = new_df['transcript'].apply(clean_transcript)
-    
-    # 2. Slice the last 25% (To focus on the outcome)
-    def get_last_quarter(text):
-        start_index = int(len(text) * 0.75)
-        return text[start_index:]
-    
     new_df['transcript'] = new_df['transcript'].apply(get_last_quarter)
-    
-    print("Cleaned Preview (Last 25%):")
-    if not new_df.empty:
-        print(new_df['transcript'].iloc[0][:150] + "...") 
     
     return new_df
 
-# --- 3. TRAINING LOGIC (Low RAM Settings) ---
+# --- 3. TRAINING LOGIC ---
 
 def train_booking_model(csv_path, model_save_path="./booking_classifier_model"):
     df = load_and_preprocess_csv(csv_path)
@@ -81,13 +71,11 @@ def train_booking_model(csv_path, model_save_path="./booking_classifier_model"):
     train_dataset = Dataset.from_pandas(train_df)
     test_dataset = Dataset.from_pandas(test_df)
 
-    # Multilingual model for German support
     model_name = "distilbert-base-multilingual-cased"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
 
     def tokenize_func(examples):
-        # max_length=128 is a "safe zone" for Codespaces memory
         return tokenizer(examples["transcript"], padding="max_length", truncation=True, max_length=128)
 
     tokenized_train = train_dataset.map(tokenize_func, batched=True)
@@ -97,8 +85,8 @@ def train_booking_model(csv_path, model_save_path="./booking_classifier_model"):
         output_dir="./results",
         eval_strategy="epoch",  
         learning_rate=3e-5,
-        per_device_train_batch_size=1,        # Minimal RAM usage
-        gradient_accumulation_steps=8,        # Effectively batch size 8
+        per_device_train_batch_size=1,        
+        gradient_accumulation_steps=8,        
         num_train_epochs=3,
         weight_decay=0.01,
         fp16=False,
@@ -122,12 +110,77 @@ def train_booking_model(csv_path, model_save_path="./booking_classifier_model"):
     tokenizer.save_pretrained(model_save_path)
     print(f"\nSUCCESS: Model saved to {model_save_path}")
 
+# --- 4. INFERENCE LOGIC (The Prediction Addition) ---
+
+def predict_on_new_file(input_csv, model_path="./booking_classifier_model", output_csv="final_predictions.csv"):
+    print(f"\n--- Starting Prediction on: {input_csv} ---")
+    
+    if not os.path.exists(model_path):
+        print("Error: Trained model folder not found!")
+        return
+
+    # Load Model
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model = AutoModelForSequenceClassification.from_pretrained(model_path)
+    model.eval()
+
+    # Load Prediction Data
+    try:
+        df = pd.read_csv(input_csv, sep=None, engine='python', encoding='utf-8')
+    except:
+        df = pd.read_csv(input_csv, sep=None, engine='python', encoding='latin1')
+
+    # Column Mapping: ID (Col 0), Transcript (Col 1)
+    ids = df.iloc[:, 0]
+    raw_transcripts = df.iloc[:, 1]
+    
+    predictions = []
+
+    print("Analyzing transcripts...")
+    with torch.no_grad():
+        for text in raw_transcripts:
+            # Apply same cleaning as training
+            cleaned = clean_transcript(str(text))
+            processed = get_last_quarter(cleaned)
+            
+            inputs = tokenizer(processed, padding="max_length", truncation=True, max_length=128, return_tensors="pt")
+            outputs = model(**inputs)
+            
+            pred_id = torch.argmax(outputs.logits, dim=1).item()
+            # Convert 0/1 to text
+            label = "Booking" if pred_id == 1 else "No Booking"
+            predictions.append(label)
+
+    # Build the final CSV
+    output_df = pd.DataFrame({
+        'ID': ids,
+        'Transcript': raw_transcripts,
+        'Prediction': predictions
+    })
+
+    output_df.to_csv(output_csv, index=False, encoding='utf-8-sig')
+    print(f"SUCCESS: Result saved to {output_csv}")
+
+# --- 5. RUN EVERYTHING ---
+
 if __name__ == "__main__":
-    MY_CSV_FILE = "transcriptiondata.csv" # Ensure your file is named this or change it here
-    if os.path.exists(MY_CSV_FILE):
+    # --- CHANGE THESE FILENAMES IF NEEDED ---
+    TRAINING_DATA = "transcriptiondata.csv"
+    FILE_TO_PREDICT = "to_predict.csv" 
+    # ----------------------------------------
+
+    if os.path.exists(TRAINING_DATA):
         try:
-            train_booking_model(MY_CSV_FILE)
+            # Phase 1: Train
+            train_booking_model(TRAINING_DATA)
+            
+            # Phase 2: Predict
+            if os.path.exists(FILE_TO_PREDICT):
+                predict_on_new_file(FILE_TO_PREDICT)
+            else:
+                print(f"Note: '{FILE_TO_PREDICT}' not found. Skipping prediction phase.")
+                
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"An error occurred: {e}")
     else:
-        print(f"Error: Could not find '{MY_CSV_FILE}'.")
+        print(f"Error: Could not find training file '{TRAINING_DATA}'.")
