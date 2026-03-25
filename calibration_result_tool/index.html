@@ -20,28 +20,40 @@
         <div id="results" class="space-y-2"></div>
     </div>
 
-    <script>
-        function processData() {
-            const text = document.getElementById('inputData').value;
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
-            
-            const lines = text.split('\n');
-            lines.forEach((line, i) => {
-                const trimmed = line.trim();
-                if (["Pass", "Fail", "N/A"].includes(trimmed)) {
-                    const attr = lines[i-1] ? lines[i-1].trim() : "Attribute";
-                    const color = trimmed === "Pass" ? "text-green-600" : (trimmed === "Fail" ? "text-red-600" : "text-gray-400");
-                    
-                    resultsDiv.innerHTML += `
-                        <div class="flex justify-between border-b py-2">
-                            <span class="font-medium">${attr}</span>
-                            <span class="font-bold ${color}">${trimmed}</span>
-                        </div>`;
-                }
-            });
-            document.getElementById('shareBtn').classList.remove('hidden');
-        }
-    </script>
+   <script>
+    function processData() {
+        const rawText = document.getElementById('inputBox').value;
+        const parsedData = parseCalibration(rawText); // Calling your core logic
+        displayResults(parsedData);
+    }
+
+    function parseCalibration(text) {
+        const lines = text.split('\n');
+        const results = [];
+        const statusPattern = /^(Pass|Fail|N\/A)$/i;
+
+        lines.forEach((line, index) => {
+            const trimmed = line.trim();
+            if (statusPattern.test(trimmed)) {
+                // We assume the line BEFORE "Pass/Fail" is the attribute name
+                results.push({
+                    attribute: lines[index - 1]?.trim() || "Unknown",
+                    status: trimmed
+                });
+            }
+        });
+        return results;
+    }
+
+    function displayResults(data) {
+        const output = document.getElementById('outputArea');
+        output.innerHTML = data.map(item => `
+            <div class="result-item">
+                <strong>${item.attribute}:</strong> 
+                <span class="${item.status.toLowerCase()}">${item.status}</span>
+            </div>
+        `).join('');
+    }
+</script>
 </body>
 </html>
