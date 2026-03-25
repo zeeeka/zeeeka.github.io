@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Parser Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-md">
+        <h1 class="text-2xl font-bold mb-4 text-blue-800">Quality Audit Parser</h1>
+        
+        <textarea id="inputData" class="w-full h-48 p-4 border rounded-lg mb-4" placeholder="Paste the BMS text here..."></textarea>
+        
+        <div class="flex gap-4 mb-6">
+            <button onclick="processData()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Extract Statuses</button>
+            <button id="shareBtn" class="hidden bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">Generate Share Link</button>
+        </div>
+
+        <div id="results" class="space-y-2"></div>
+    </div>
+
+    <script>
+        function processData() {
+            const text = document.getElementById('inputData').value;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            
+            const lines = text.split('\n');
+            lines.forEach((line, i) => {
+                const trimmed = line.trim();
+                if (["Pass", "Fail", "N/A"].includes(trimmed)) {
+                    const attr = lines[i-1] ? lines[i-1].trim() : "Attribute";
+                    const color = trimmed === "Pass" ? "text-green-600" : (trimmed === "Fail" ? "text-red-600" : "text-gray-400");
+                    
+                    resultsDiv.innerHTML += `
+                        <div class="flex justify-between border-b py-2">
+                            <span class="font-medium">${attr}</span>
+                            <span class="font-bold ${color}">${trimmed}</span>
+                        </div>`;
+                }
+            });
+            document.getElementById('shareBtn').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
