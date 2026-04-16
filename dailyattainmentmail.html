@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QA Daily Report Generator v3</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h2 { color: #1a73e8; border-bottom: 2px solid #e8f0fe; padding-bottom: 10px; }
+        .section { margin-bottom: 20px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #444; }
+        textarea { width: 100%; height: 120px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 11px; }
+        input[type="text"] { width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+        button { background: #1a73e8; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background: #1557b0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .copy-btn { background: #34a853; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>QA Daily Attainment Generator</h2>
+    
+    <div class="section">
+        <label>1. Target Date (Match the export exactly, e.g., 4/15/2026)</label>
+        <input type="text" id="targetDate" placeholder="M/D/YYYY">
+    </div>
+
+    <div class="section">
+        <label>2. Weekly Target (Paste the text for all QAAs)</label>
+        <textarea id="targetInput" placeholder="Hossam: 13 sampling Reservation...&#10;Omar: Training...&#10;Bassam: 13 sampling Reservation..."></textarea>
+    </div>
+
+    <div class="section">
+        <label>3. Paste Daily Export Data (Include Header Row)</label>
+        <textarea id="exportInput" placeholder="Paste export here..."></textarea>
+    </div>
+
+    <button onclick="generateReport()">Generate Final Table</button>
+
+    <div id="resultContainer" style="display:none;">
+        <h3>Final Email Table</h3>
+        <table id="finalTable">
+            <thead>
+                <tr>
+                    <th>QAA</th>
+                    <th>Assigned</th>
+                    <th>Attainment</th>
+                    <th>Missing</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <button class="copy-btn" onclick="copyTable()">Copy Table for Email</button>
+    </div>
+</div>
+
+<script>
+    function generateReport() {
+        const targetDate = document.getElementById('targetDate').value.trim();
+        const targetRaw = document.getElementById('targetInput').value;
+        const exportRaw = document.getElementById('exportInput').value;
+        
+        const lines = exportRaw.split('\n');
+        const headers = lines[0].split('\t');
+        
+        // Column Index Mapping
+        const idxID = headers.indexOf("Reviewer Ident");
+        const idxDate = headers.indexOf("Monitor Date");
+        const idxLOB = headers.indexOf("LOB");
+        const idxActivity = headers.indexOf("Activity - If Sample");
+        const idxAgentLoc = headers.indexOf("Agent Location");
+
+        let stats = {
+            "5511496": { name: "Hossam", res: 0, uni: 0, sales: 0, short: 0, voc: 0 },
+            "5811570": { name: "Bassam", res: 0, uni: 0, sales: 0, short: 0, voc: 0 },
+            "6024482": { name: "Omar", res: 0, uni: 0, sales: 0, short: 0, voc: 0 }
+        };
+
+        for(let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split('\t');
+            if (cols.length < 10) continue;
+
+            const rowDate = cols[idxDate];
+            const rowID = cols[idxID]?.trim();
+            const rowLOB = (cols[idxLOB] || "").trim();
+            const rowActivity = (cols[idxActivity] || "").trim();
+            const rowAgentLoc = (cols[idxAgentLoc] || "").trim();
+
+            if (rowDate === targetDate && stats[rowID]) {
+                // 1. Reservation & Universal (via LOB)
+                if (rowLOB === "IHG - Reservation") stats[rowID].res++;
+                else if (rowLOB === "IHG - Universal") stats[rowID].uni++;
+                
+                // 2. Sales & Short (via Activity)
+                if (rowActivity === "Compliance & Integrity Monitoring - Sales") stats[rowID].sales++;
+                else if (rowActivity === "Compliance & Integrity Monitoring - Short") stats[rowID].short++;
+
+                // 3. VOC (via Agent Location)
+                if (rowAgentLoc === "Capture Customer Feedback - Capture Customer Feedback") stats[rowID].voc++;
+            }
+        }
+
+        const targetLines = targetRaw.split('\n');
+        const getAssigned = (name) => {
+            let line = targetLines.find(l => l.toLowerCase().includes(name.toLowerCase())) || "";
+            return line.includes(":") ? line.split(":")[1].trim() : line;
+        };
+
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+
+        Object.keys(stats).forEach(id => {
+            const qaa = stats[id];
+            const assigned = getAssigned(qaa.name);
+            
+            let attainmentParts = [];
+            if (qaa.res > 0 || assigned.includes("Reservation")) attainmentParts.push(`${qaa.res} Sampling Reservation`);
+            if (qaa.uni > 0 || assigned.includes("uni")) attainmentParts.push(`${qaa.uni} Uni sample`);
+            if (qaa.sales > 0 || assigned.includes("Sales")) attainmentParts.push(`${qaa.sales} Sale`);
+            if (qaa.short > 0 || assigned.includes("short")) attainmentParts.push(`${qaa.short} Short`);
+            if (qaa.voc > 0 || assigned.includes("VOC")) attainmentParts.push(`${qaa.voc} VOC`);
+
+            let attainmentStr = attainmentParts.join(" + ");
+
+            if (assigned.toLowerCase().includes("off") || assigned.toLowerCase().includes("training")) {
+                attainmentStr = assigned;
+                document.getElementById('tableBody').innerHTML += `<tr><td>**${qaa.name}**</td><td>${assigned}</td><td>${attainmentStr}</td><td>-</td><td>-</td></tr>`;
+            } else {
+                // Calculation for "Missing"
+                let targetRes = (assigned.match(/(\d+)\s+sampling Reservation/) || [0,0])[1];
+                let targetUni = (assigned.match(/(\d+)\s+uni/) || [0,0])[1];
+                let targetSales = (assigned.match(/(\d+)\s+Sales/) || [0,0])[1];
+                let targetShort = (assigned.match(/(\d+)\s+short/) || [0,0])[1];
+
+                let mArr = [];
+                if (targetRes - qaa.res > 0) mArr.push(`${targetRes - qaa.res} Sampling Reservation`);
+                if (targetUni - qaa.uni > 0) mArr.push(`${targetUni - qaa.uni} Uni`);
+                if (targetSales - qaa.sales > 0) mArr.push(`${targetSales - qaa.sales} Sales`);
+                if (targetShort - qaa.short > 0) mArr.push(`${targetShort - qaa.short} Short`);
+
+                tbody.innerHTML += `<tr>
+                    <td>**${qaa.name}**</td>
+                    <td>${assigned}</td>
+                    <td>${attainmentStr}</td>
+                    <td>${mArr.length > 0 ? mArr.join(" + ") : "-"}</td>
+                    <td>-</td>
+                </tr>`;
+            }
+        });
+
+        document.getElementById('resultContainer').style.display = 'block';
+    }
+
+    function copyTable() {
+        const el = document.getElementById('finalTable');
+        const range = document.createRange();
+        range.selectNode(el);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        alert("Table copied for email!");
+    }
+</script>
+
+</body>
+</html>
