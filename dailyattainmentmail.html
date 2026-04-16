@@ -2,37 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>QA Attainment Tool v7 - Grid Support</title>
+    <title>QA Attainment Tool v8</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #1a73e8; border-bottom: 2px solid #e8f0fe; padding-bottom: 10px; }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; }
         .section { margin-bottom: 20px; }
-        label { font-weight: bold; display: block; margin-bottom: 5px; color: #444; }
         textarea, input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        textarea { height: 150px; font-family: monospace; font-size: 11px; white-space: pre; }
-        button { background: #1a73e8; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        button:hover { background: #1557b0; }
+        textarea { height: 180px; font-family: monospace; font-size: 11px; }
+        button { background: #1a73e8; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; }
         table { width: 100%; border-collapse: collapse; margin-top: 25px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         th { background-color: #f8f9fa; }
-        .copy-btn { background: #34a853; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>QA Daily Attainment Tool v7</h2>
+    <h2>QA Daily Attainment Tool v8</h2>
     
     <div class="section">
-        <label>1. Target Date (Type exactly as it appears in the grid headers, e.g., 16-Apr)</label>
-        <input type="text" id="targetDate" placeholder="e.g., 16-Apr">
+        <label>1. Target Date (Try typing just the number, e.g., 15)</label>
+        <input type="text" id="targetDate" placeholder="e.g., 15">
     </div>
 
     <div class="section">
-        <label>2. Weekly Target Schedule (Paste the entire grid here)</label>
-        <textarea id="targetInput" placeholder="Paste the grid starting from 'QAA'..."></textarea>
+        <label>2. Weekly Target Schedule (Paste the grid)</label>
+        <textarea id="targetInput" placeholder="Paste grid here..."></textarea>
     </div>
 
     <div class="section">
@@ -49,19 +45,12 @@
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
-        <button class="copy-btn" onclick="copyTable()">Copy Table for Email</button>
     </div>
 </div>
 
 <script>
     let excelData = [];
-
-    // Indices based on your specific Excel export structure
-    const COL_ID = 6;       // Column G
-    const COL_DATE = 19;     // Column T
-    const COL_ACTIVITY = 21; // Column V
-    const COL_LOB = 26;      // Column AA
-    const COL_AGENTLOC = 27; // Column AB
+    const COL_ID = 6, COL_DATE = 19, COL_ACTIVITY = 21, COL_LOB = 26, COL_AGENTLOC = 27;
 
     document.getElementById('fileInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -70,34 +59,38 @@
             const data = evt.target.result;
             const workbook = XLSX.read(data, {type: 'binary', cellDates: true});
             excelData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
-            alert("Excel export loaded successfully!");
+            alert("Excel export loaded!");
         };
         reader.readAsBinaryString(file);
     });
 
     function processData() {
-        const inputDateStr = document.getElementById('targetDate').value.trim(); // e.g., "16-Apr"
+        const inputDate = document.getElementById('targetDate').value.trim();
         const targetRaw = document.getElementById('targetInput').value;
         
-        if (!excelData.length) return alert("Please upload the Excel export!");
-
-        // 1. Parse the Weekly Target Grid
-        // We split by newlines and then by tabs (standard for Excel copy-paste)
-        const targetLines = targetRaw.split('\n').map(line => line.split('\t'));
-        const dateRow = targetLines.find(row => row.some(cell => cell.includes('-Apr') || cell.includes('-May')));
+        // 1. IMPROVED GRID PARSING
+        const rows = targetRaw.split('\n').map(r => r.split(/\t| {2,}/)); // Split by tab OR multiple spaces
         
-        if (!dateRow) return alert("Could not find the date headers in your pasted target!");
+        // Find the date row (the one containing "Apr")
+        let dateRowIndex = rows.findIndex(r => r.join('').includes('Apr'));
+        if (dateRowIndex === -1) return alert("Could not find a row with 'Apr' in your pasted target.");
         
-        const dateIndex = dateRow.findIndex(cell => cell.trim() === inputDateStr);
-        if (dateIndex === -1) return alert("Date '" + inputDateStr + "' not found in the grid headers.");
+        const dateRow = rows[dateRowIndex].map(cell => cell.trim());
+        
+        // Fuzzy Search for the Date
+        let dateIndex = dateRow.findIndex(cell => cell.includes(inputDate));
+        
+        if (dateIndex === -1) {
+            alert("Found these dates in header: [" + dateRow.join(", ") + "]. None matched '" + inputDate + "'.");
+            return;
+        }
 
-        const getAssignedFromGrid = (name) => {
-            const personRow = targetLines.find(row => row[0] && row[0].trim() === name);
-            return personRow ? personRow[dateIndex] : "OFF";
+        const getAssigned = (name) => {
+            let pRow = rows.find(r => r[0] && r[0].trim().toLowerCase() === name.toLowerCase());
+            return pRow ? pRow[dateIndex] : "OFF";
         };
 
-        // 2. Aggregate Export Data (Note: Export uses full date 4/16/2026, so we convert input)
-        // Adjusting date matching: assuming export date Col T matches typed date logic
+        // 2. AGGREGATE EXPORT
         let stats = {
             "5511496": { name: "Hossam", res: 0, uni: 0, sales: 0, short: 0, voc: 0 },
             "5811570": { name: "Bassam", res: 0, uni: 0, sales: 0, short: 0, voc: 0 },
@@ -106,52 +99,37 @@
 
         excelData.forEach((row, i) => {
             if (i === 0) return;
-            let rowDateRaw = row[COL_DATE];
-            let rowDateStr = "";
-
-            if (rowDateRaw instanceof Date) {
-                // Convert export date to match "16-Apr" format for logic if needed, 
-                // but usually we match export date to a system date.
-                // For now, let's assume the user typed a date that matches export logic.
-                rowDateStr = rowDateRaw.getDate() + "-" + rowDateRaw.toLocaleString('default', { month: 'short' });
-            } else {
-                rowDateStr = String(rowDateRaw || "").trim();
-            }
-
-            // We match based on the "16-Apr" format
-            if (rowDateStr.toLowerCase().includes(inputDateStr.toLowerCase())) {
+            let dRaw = row[COL_DATE];
+            let dStr = (dRaw instanceof Date) ? dRaw.getDate().toString() : String(dRaw || "");
+            
+            // Match export date to input number (e.g., if export is 4/15/2026, match "15")
+            if (dStr.includes(inputDate)) {
                 const id = String(row[COL_ID] || "").trim();
                 if (stats[id]) {
-                    const activity = String(row[COL_ACTIVITY] || "");
-                    const lob = String(row[COL_LOB] || "");
-                    const loc = String(row[COL_AGENTLOC] || "");
-
+                    const act = String(row[COL_ACTIVITY] || ""), lob = String(row[COL_LOB] || ""), loc = String(row[COL_AGENTLOC] || "");
                     if (lob.includes("Reservation")) stats[id].res++;
                     if (lob.includes("Universal")) stats[id].uni++;
-                    if (activity.includes("- Sales")) stats[id].sales++;
-                    if (activity.includes("- Short")) stats[id].short++;
+                    if (act.includes("- Sales")) stats[id].sales++;
+                    if (act.includes("- Short")) stats[id].short++;
                     if (loc.includes("Capture Customer Feedback")) stats[id].voc++;
                 }
             }
         });
 
-        // 3. Render Table
+        // 3. RENDER
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = "";
-
         Object.keys(stats).forEach(id => {
             const qaa = stats[id];
-            const assigned = getAssignedFromGrid(qaa.name);
-            
+            const assigned = getAssigned(qaa.name);
             let attainment = `${qaa.res} Res + ${qaa.uni} Uni + ${qaa.sales} Sales`;
             if (qaa.short > 0) attainment += ` + ${qaa.short} Short`;
             if (qaa.voc > 0) attainment += ` + ${qaa.voc} VOC`;
 
-            // Extraction for Missing
             let tRes = (assigned.match(/(\d+)\s+sampling Reservation/) || [0,0])[1];
             let tUni = (assigned.match(/(\d+)\s+uni/) || [0,0])[1];
             let tSales = (assigned.match(/(\d+)\s+Sales/) || [0,0])[1];
-
+            
             let mArr = [];
             if (tRes - qaa.res > 0) mArr.push((tRes - qaa.res) + " Res");
             if (tUni - qaa.uni > 0) mArr.push((tUni - qaa.uni) + " Uni");
@@ -165,19 +143,8 @@
                 <td>-</td>
             </tr>`;
         });
-
         document.getElementById('resultArea').style.display = 'block';
     }
-
-    function copyTable() {
-        const range = document.createRange();
-        range.selectNode(document.getElementById("finalTable"));
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(range);
-        document.execCommand("copy");
-        alert("Table copied!");
-    }
 </script>
-
 </body>
 </html>
