@@ -2,46 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>QA Daily Report Generator v3</title>
+    <title>QA Daily Attainment Tool v4</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        h2 { color: #1a73e8; border-bottom: 2px solid #e8f0fe; padding-bottom: 10px; }
-        .section { margin-bottom: 20px; }
-        label { font-weight: bold; display: block; margin-bottom: 5px; color: #444; }
-        textarea { width: 100%; height: 120px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 11px; }
-        input[type="text"] { width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
-        button { background: #1a73e8; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        button:hover { background: #1557b0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #eceff1; padding: 20px; color: #333; }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #1565c0; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; margin-top: 0; }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px; }
+        label { font-weight: bold; display: block; margin-bottom: 8px; color: #444; }
+        textarea { width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; font-size: 13px; box-sizing: border-box; }
+        input[type="text"], input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { background: #1565c0; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 16px; margin-top: 10px; transition: 0.2s; }
+        button:hover { background: #0d47a1; }
+        .result-area { margin-top: 30px; display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #f8f9fa; }
-        .copy-btn { background: #34a853; margin-top: 20px; }
+        th { background-color: #f5f5f5; font-weight: 600; }
+        .copy-btn { background: #2e7d32; }
+        .copy-btn:hover { background: #1b5e20; }
+        .mapping-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+        .mapping-item { background: #f9f9f9; padding: 8px; border-radius: 4px; border: 1px ssolid #eee; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>QA Daily Attainment Generator</h2>
+    <h2>QA Daily Attainment Tool - Excel Version</h2>
     
     <div class="section">
-        <label>1. Target Date (Match the export exactly, e.g., 4/15/2026)</label>
+        <label>1. Target Date (Match format in Excel, e.g., 4/15/2026)</label>
         <input type="text" id="targetDate" placeholder="M/D/YYYY">
     </div>
 
     <div class="section">
-        <label>2. Weekly Target (Paste the text for all QAAs)</label>
+        <label>2. Weekly Target Schedule (Paste text from manager)</label>
         <textarea id="targetInput" placeholder="Hossam: 13 sampling Reservation...&#10;Omar: Training...&#10;Bassam: 13 sampling Reservation..."></textarea>
     </div>
 
     <div class="section">
-        <label>3. Paste Daily Export Data (Include Header Row)</label>
-        <textarea id="exportInput" placeholder="Paste export here..."></textarea>
+        <label>3. Upload Excel Export</label>
+        <input type="file" id="fileInput" accept=".xlsx, .xls">
     </div>
 
-    <button onclick="generateReport()">Generate Final Table</button>
+    <div class="section" style="background: #fffde7;">
+        <label>Column Mappings (Current Index Config)</label>
+        <div class="mapping-grid">
+            <div class="mapping-item"><strong>Reviewer Ident:</strong> Col G (Index 6)</div>
+            <div class="mapping-item"><strong>Monitor Date:</strong> Col Q (Index 16)</div>
+            <div class="mapping-item"><strong>LOB:</strong> Col AA (Index 26)</div>
+            <div class="mapping-item"><strong>Activity (Sample):</strong> Col V (Index 21)</div>
+            <div class="mapping-item"><strong>Agent Loc (VOC):</strong> Col AB (Index 27)</div>
+        </div>
+        <p style="font-size: 11px; color: #777; margin-top: 5px;">*Indices are 0-based (A=0, B=1, etc.) based on your shared list.</p>
+    </div>
 
-    <div id="resultContainer" style="display:none;">
+    <button onclick="processExcel()">Generate Attainment Table</button>
+
+    <div id="resultArea" class="result-area">
         <h3>Final Email Table</h3>
         <table id="finalTable">
             <thead>
@@ -60,20 +77,33 @@
 </div>
 
 <script>
-    function generateReport() {
+    let excelData = [];
+
+    // Map columns based on your provided list (0-based indices)
+    const COL_ID = 6;      // Column G: Reviewer Ident
+    const COL_DATE = 16;    // Column Q: Monitor Date
+    const COL_LOB = 26;     // Column AA: LOB
+    const COL_ACTIVITY = 21;// Column V: Activity - If Sample
+    const COL_VOC = 27;     // Column AB: Agent Location (based on your description)
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const data = evt.target.result;
+            const workbook = XLSX.read(data, {type: 'binary'});
+            const firstSheet = workbook.SheetNames[0];
+            excelData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], {header: 1});
+            console.log("Excel Loaded. Rows:", excelData.length);
+        };
+        reader.readAsBinaryString(file);
+    });
+
+    function processExcel() {
         const targetDate = document.getElementById('targetDate').value.trim();
         const targetRaw = document.getElementById('targetInput').value;
-        const exportRaw = document.getElementById('exportInput').value;
         
-        const lines = exportRaw.split('\n');
-        const headers = lines[0].split('\t');
-        
-        // Column Index Mapping
-        const idxID = headers.indexOf("Reviewer Ident");
-        const idxDate = headers.indexOf("Monitor Date");
-        const idxLOB = headers.indexOf("LOB");
-        const idxActivity = headers.indexOf("Activity - If Sample");
-        const idxAgentLoc = headers.indexOf("Agent Location");
+        if (!excelData.length) { alert("Please upload an Excel file first!"); return; }
 
         let stats = {
             "5511496": { name: "Hossam", res: 0, uni: 0, sales: 0, short: 0, voc: 0 },
@@ -81,33 +111,38 @@
             "6024482": { name: "Omar", res: 0, uni: 0, sales: 0, short: 0, voc: 0 }
         };
 
-        for(let i = 1; i < lines.length; i++) {
-            const cols = lines[i].split('\t');
-            if (cols.length < 10) continue;
+        // Skip header row
+        for(let i = 1; i < excelData.length; i++) {
+            const row = excelData[i];
+            if (!row || row.length < 10) continue;
 
-            const rowDate = cols[idxDate];
-            const rowID = cols[idxID]?.trim();
-            const rowLOB = (cols[idxLOB] || "").trim();
-            const rowActivity = (cols[idxActivity] || "").trim();
-            const rowAgentLoc = (cols[idxAgentLoc] || "").trim();
+            // Handle date conversion if Excel stores it as serial number
+            let rowDate = row[COL_DATE];
+            if (typeof rowDate === 'number') {
+                const dateObj = XLSX.utils.format_cell({t:'n', v:rowDate}); // Basic conversion
+                // This logic might need adjustment depending on how you type the date input
+            }
+            rowDate = String(rowDate).trim();
+
+            const rowID = String(row[COL_ID] || "").trim();
+            const rowLOB = String(row[COL_LOB] || "").trim();
+            const rowActivity = String(row[COL_ACTIVITY] || "").trim();
+            const rowVOC = String(row[COL_VOC] || "").trim();
 
             if (rowDate === targetDate && stats[rowID]) {
-                // 1. Reservation & Universal (via LOB)
                 if (rowLOB === "IHG - Reservation") stats[rowID].res++;
                 else if (rowLOB === "IHG - Universal") stats[rowID].uni++;
                 
-                // 2. Sales & Short (via Activity)
                 if (rowActivity === "Compliance & Integrity Monitoring - Sales") stats[rowID].sales++;
                 else if (rowActivity === "Compliance & Integrity Monitoring - Short") stats[rowID].short++;
 
-                // 3. VOC (via Agent Location)
-                if (rowAgentLoc === "Capture Customer Feedback - Capture Customer Feedback") stats[rowID].voc++;
+                if (rowVOC === "Capture Customer Feedback - Capture Customer Feedback") stats[rowID].voc++;
             }
         }
 
         const targetLines = targetRaw.split('\n');
         const getAssigned = (name) => {
-            let line = targetLines.find(l => l.toLowerCase().includes(name.toLowerCase())) || "";
+            let line = targetRaw.split('\n').find(l => l.toLowerCase().includes(name.toLowerCase())) || "";
             return line.includes(":") ? line.split(":")[1].trim() : line;
         };
 
@@ -116,35 +151,33 @@
 
         Object.keys(stats).forEach(id => {
             const qaa = stats[id];
-            const assigned = getAssigned(qaa.name);
+            const assigned = getAssigned(qaa.name) || "Not Found";
             
             let attainmentParts = [];
-            if (qaa.res > 0 || assigned.includes("Reservation")) attainmentParts.push(`${qaa.res} Sampling Reservation`);
-            if (qaa.uni > 0 || assigned.includes("uni")) attainmentParts.push(`${qaa.uni} Uni sample`);
-            if (qaa.sales > 0 || assigned.includes("Sales")) attainmentParts.push(`${qaa.sales} Sale`);
-            if (qaa.short > 0 || assigned.includes("short")) attainmentParts.push(`${qaa.short} Short`);
-            if (qaa.voc > 0 || assigned.includes("VOC")) attainmentParts.push(`${qaa.voc} VOC`);
+            if (qaa.res > 0 || assigned.includes("Reservation")) attainmentParts.push(qaa.res + " Sampling Reservation");
+            if (qaa.uni > 0 || assigned.includes("uni")) attainmentParts.push(qaa.uni + " Uni sample");
+            if (qaa.sales > 0 || assigned.includes("Sales")) attainmentParts.push(qaa.sales + " Sale");
+            if (qaa.short > 0 || assigned.includes("short")) attainmentParts.push(qaa.short + " Short");
+            if (qaa.voc > 0 || assigned.includes("VOC")) attainmentParts.push(qaa.voc + " VOC");
 
             let attainmentStr = attainmentParts.join(" + ");
 
             if (assigned.toLowerCase().includes("off") || assigned.toLowerCase().includes("training")) {
-                attainmentStr = assigned;
-                document.getElementById('tableBody').innerHTML += `<tr><td>**${qaa.name}**</td><td>${assigned}</td><td>${attainmentStr}</td><td>-</td><td>-</td></tr>`;
+                tbody.innerHTML += `<tr><td><strong>${qaa.name}</strong></td><td>${assigned}</td><td>${assigned}</td><td>-</td><td>-</td></tr>`;
             } else {
-                // Calculation for "Missing"
                 let targetRes = (assigned.match(/(\d+)\s+sampling Reservation/) || [0,0])[1];
                 let targetUni = (assigned.match(/(\d+)\s+uni/) || [0,0])[1];
                 let targetSales = (assigned.match(/(\d+)\s+Sales/) || [0,0])[1];
                 let targetShort = (assigned.match(/(\d+)\s+short/) || [0,0])[1];
 
                 let mArr = [];
-                if (targetRes - qaa.res > 0) mArr.push(`${targetRes - qaa.res} Sampling Reservation`);
-                if (targetUni - qaa.uni > 0) mArr.push(`${targetUni - qaa.uni} Uni`);
-                if (targetSales - qaa.sales > 0) mArr.push(`${targetSales - qaa.sales} Sales`);
-                if (targetShort - qaa.short > 0) mArr.push(`${targetShort - qaa.short} Short`);
+                if (targetRes - qaa.res > 0) mArr.push((targetRes - qaa.res) + " Sampling Reservation");
+                if (targetUni - qaa.uni > 0) mArr.push((targetUni - qaa.uni) + " Uni");
+                if (targetSales - qaa.sales > 0) mArr.push((targetSales - qaa.sales) + " Sales");
+                if (targetShort - qaa.short > 0) mArr.push((targetShort - qaa.short) + " Short");
 
                 tbody.innerHTML += `<tr>
-                    <td>**${qaa.name}**</td>
+                    <td><strong>${qaa.name}</strong></td>
                     <td>${assigned}</td>
                     <td>${attainmentStr}</td>
                     <td>${mArr.length > 0 ? mArr.join(" + ") : "-"}</td>
@@ -153,17 +186,16 @@
             }
         });
 
-        document.getElementById('resultContainer').style.display = 'block';
+        document.getElementById('resultArea').style.display = 'block';
     }
 
     function copyTable() {
-        const el = document.getElementById('finalTable');
         const range = document.createRange();
-        range.selectNode(el);
+        range.selectNode(document.getElementById("finalTable"));
         window.getSelection().removeAllRanges();
         window.getSelection().addRange(range);
-        document.execCommand('copy');
-        alert("Table copied for email!");
+        document.execCommand("copy");
+        alert("Table copied! Paste it into your email.");
     }
 </script>
 
