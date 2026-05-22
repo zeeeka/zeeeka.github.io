@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balanced IHG QA Tool</title>
+    <style>
+        :root {
+            --primary: #d32f2f;
+            --secondary: #2e7d32;
+            --bg: #f4f7f6;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: #333; margin: 20px; line-height: 1.4; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.9rem; }
+        
+        /* Call Details Styling */
+        .metadata-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
+        .metadata-input { width: 100%; height: 80px; border: 1px solid #ccc; border-radius: 6px; padding: 10px; font-size: 0.8rem; margin-bottom: 10px; resize: vertical; box-sizing: border-box; }
+        
+        .parsed-results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #fff; padding: 10px; border: 1px solid #eee; border-radius: 4px; }
+        .parsed-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; color: #444; background: #f9f9f9; padding: 5px 8px; border-radius: 4px; border: 1px solid #eee; }
+        .parsed-item strong { color: var(--primary); margin-right: 5px; }
+        .copy-small { padding: 2px 6px; font-size: 0.7rem; background: #eee; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; margin-left: 10px; }
+        .copy-small:hover { background: #ddd; }
+
+        .section { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+        .section-header { background: #eee; padding: 10px 15px; font-weight: bold; font-size: 1rem; border-bottom: 1px solid #ddd; }
+        
+        .parameter-row { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 12px 15px; border-bottom: 1px solid #eee; transition: 0.2s; }
+        .parameter-row:last-child { border-bottom: none; }
+        .parameter-row:hover { background: #fdfdfd; }
+        
+        .param-name { font-weight: 600; display: block; color: #444; }
+
+        /* Section Specific Output */
+        .section-feedback-area { padding: 10px 15px; background: #f9f9f9; border-top: 1px solid #eee; }
+        .section-text { width: 100%; height: 40px; border: 1px solid #ccc; border-radius: 4px; padding: 5px; font-size: 0.85rem; margin-bottom: 5px; box-sizing: border-box; }
+
+        .status-toggle { display: flex; gap: 5px; }
+        .btn { border: 1px solid #ccc; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; transition: 0.3s; min-width: 70px; }
+        
+        .btn-met.active { background: var(--secondary); color: white; border-color: var(--secondary); }
+        .btn-missed.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn:not(.active) { background: white; color: #888; }
+
+        .output-area { margin-top: 30px; background: #fff; border-top: 3px solid var(--primary); padding-top: 20px; }
+        textarea { width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 6px; padding: 15px; font-family: 'Segoe UI', sans-serif; font-size: 0.9rem; background: #fafafa; margin-top: 10px; box-sizing: border-box; resize: vertical; }
+        
+        .controls { display: flex; justify-content: space-between; margin-top: 15px; }
+        .btn-main { padding: 12px 25px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; }
+        .copy-btn { background: var(--secondary); }
+        .reset-btn { background: #757575; }
+
+        .signature { margin-top: 40px; text-align: center; font-size: 0.85rem; color: #888; border-top: 1px solid #eee; padding-top: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>IHG Universal QA Comment Tool</h1>
+    <div class="subtitle">Select 'Met' or 'Missed' for each parameter to generate a balanced feedback comment.</div>
+
+    <div class="metadata-section">
+        <strong>Paste Call Details / Log:</strong>
+        <textarea id="call-details-input" class="metadata-input" oninput="parseCallData()" placeholder="Paste the technical log here..."></textarea>
+        
+        <div id="parsed-results-box" class="parsed-results">
+            <div class="parsed-item">
+                <span><strong>ID:</strong> <span id="res-id">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-id')">Copy</button>
+            </div>
+            <div class="parsed-item">
+                <span><strong>Duration:</strong> <span id="res-dur">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-dur')">Copy</button>
+            </div>
+            <div class="parsed-item">
+                <span><strong>Time:</strong> <span id="res-time">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-time')">Copy</button>
+            </div>
+            <div class="parsed-item">
+                <span><strong>Conf #:</strong> <span id="res-conf">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-conf')">Copy</button>
+            </div>
+            <div class="parsed-item">
+                <span><strong>Whisper:</strong> <span id="res-whisper">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-whisper')">Copy</button>
+            </div>
+            <div class="parsed-item">
+                <span><strong>Revenue:</strong> <span id="res-rev">-</span></span>
+                <button class="copy-small" onclick="copyValue('res-rev')">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="qa-form"></div>
+
+    <div class="output-area">
+        <strong>Final QA Comment:</strong>
+        <textarea id="output-text" readonly></textarea>
+        <div class="controls">
+            <button class="btn-main reset-btn" onclick="resetForm()">Reset All</button>
+            <button class="btn-main copy-btn" onclick="copyText('output-text')">Copy Comment to Clipboard</button>
+        </div>
+    </div>
+
+    <div class="signature">
+        Developed By Omar Essam Zakaria | Quality Assurance Analyst @ IHG - InterContinental Hotels Group
+    </div>
+</div>
+
+<script>
+    const qaData = [
+        {   section: "CUSTOMER-CENTRIC CRITICAL BEHAVIORS",
+            params: [
+                { name: "Recognize and appreciate the guest’s loyalty to IHG", met: "Agent appreciated the guest for their loyalty and acknowledged their loyalty status if applicable", fail: "Agent didn't appreciate the guest for their loyalty or acknowledged their loyalty status if applicable" },
+                { name: "Use information and ask questions to uncover the needs of the guest", met: "The Caller Reason for Contact was used during the opening message.", fail: "The Caller Reason for Contact was used during the opening message." },
+                { name: "Provide a solution that matches the guest’s needs using related processes", met: "Agent provided a relevant solution that addresses the guests needs following established processes, guidelines and T&Cs to provide the resolution.", fail: "Agent Failed to adhere to the process/ guideline as enumerated in iConnect even if the concern or issue ended up as resolved" },
+                { name: "Communicate effectively through clear conversation", met: "Agent followed proper email format , used correct grammar and no misspelled words", fail: "Agent failed to follow the proper email format." },
+            ]
+        },
+        {
+            section: "INTERNAL PROCEDURES AND COMPLIANCE",
+            params: [
+                { name: "Was the proper verification followed? (LOYALTY ONLY)", met: "Agent followed proper Account Verification as enumerated in iConnect http://iconnect.hiw.com/knowledge-base/account-verification/", fail: "Agent didn't follow proper Account Verification as enumerated in iConnect http://iconnect.hiw.com/knowledge-base/account-verification/" },
+                { name: "Did the specialist/representative provide complete and accurate information?", met: "Agent provided complete and accurate information at all times during the interaction.", fail: "Agent failed to provide complete and accurate information at all times during the interaction." },
+                { name: "Were information encoded accurately in the systems and did the specialist/representative document completely and accurately as required?", met: "iCare documentation is complete and accurate", fail: "iCare documentation isn't complete and accurate" },
+            ]
+        },
+        {
+            section: "ENABLING BEHAVIORS",
+            params: [
+                { name: "Was the specialist/representative able to proactively share helpful information to avoid recurrence of the issue? (LOYALTY ONLY)", met: "Agent educated our members on how to prevent similar issues to recur, preventing  a second contact", fail: "Agent failed to educate on how to prevent similar issues not to recur so there won't be a second contact" },
+                { name: "Did the specialist/representative build rapport whenever there was  a chance to do so?", met: "Agent Followed the proper IHG One Rewards Account verification process", fail: "Agent failed to build rapport when there was a  chance to do so" },
+                { name: "Did the specialist/representative access all systems/resources using these tools efficiently to quickly address inquiries and concerns?", met: "All applicable systems were utilized efficiently", fail: "Challenges in navigating the systems affecting efficiency or quickly resolving guest concerns" }
+            ]
+        },
+    ];
+
+    let selections = {};
+
+    function initForm() {
+        const form = document.getElementById('qa-form');
+        qaData.forEach((sec, sIdx) => {
+            const secDiv = document.createElement('div');
+            secDiv.className = 'section';
+            secDiv.innerHTML = `<div class="section-header">${sec.section}</div>`;
+            
+            sec.params.forEach((param, pIdx) => {
+                const paramId = `p-${sIdx}-${pIdx}`;
+                selections[paramId] = null; 
+                const row = document.createElement('div');
+                row.className = 'parameter-row';
+                row.innerHTML = `
+                    <div><span class="param-name">${param.name}</span></div>
+                    <div class="status-toggle">
+                        <button class="btn btn-met" id="met-${paramId}" onclick="updateStatus('${paramId}', 'met', ${sIdx}, ${pIdx})">Met</button>
+                        <button class="btn btn-missed" id="missed-${paramId}" onclick="updateStatus('${paramId}', 'missed', ${sIdx}, ${pIdx})">Missed</button>
+                    </div>
+                `;
+                secDiv.appendChild(row);
+            });
+
+            const feedbackArea = document.createElement('div');
+            feedbackArea.className = 'section-feedback-area';
+            feedbackArea.innerHTML = `
+                <textarea id="section-out-${sIdx}" class="section-text" readonly placeholder="${sec.section} feedback..."></textarea>
+                <button class="btn" style="width:100%" onclick="copyText('section-out-${sIdx}')">Copy ${sec.section}</button>
+            `;
+            secDiv.appendChild(feedbackArea);
+            form.appendChild(secDiv);
+        });
+    }
+
+    function parseCallData() {
+        const input = document.getElementById('call-details-input').value;
+        
+        // Interaction ID
+        const idMatch = input.match(/Interaction ID\s*([a-z0-9-]+)/i);
+        document.getElementById('res-id').innerText = idMatch ? idMatch[1] : "-";
+
+        // Duration (to HH:MM:SS)
+        const durMatch = input.match(/Duration\s*(\d+):(\d+)/i);
+        if (durMatch) {
+            let totalSeconds = (parseInt(durMatch[1]) * 60) + parseInt(durMatch[2]);
+            document.getElementById('res-dur').innerText = new Date(totalSeconds * 1000).toISOString().substr(11, 8);
+        } else { document.getElementById('res-dur').innerText = "-"; }
+
+        // Call Time
+        const timeMatch = input.match(/at\s*(\d+:\d+:\d+\s*[APM]+)/i);
+        document.getElementById('res-time').innerText = timeMatch ? timeMatch[1] : "-";
+
+        // Confirmation Number
+        const confMatch = input.match(/confirmationNumber\s*([A-Z0-9]+)/i);
+        document.getElementById('res-conf').innerText = confMatch ? confMatch[1] : "Not Booked";
+
+        // Whisper Display - Refined to match IHG Voice VIEFA HI format
+        const whisperMatch = input.match(/IHG Voice\s+[^|\n]+/i);
+        document.getElementById('res-whisper').innerText = whisperMatch ? whisperMatch[0].trim() : "-";
+
+        // Revenue
+        const revMatch = input.match(/totalRevenueAmount\s*([\d.]+)/i);
+        document.getElementById('res-rev').innerText = revMatch ? revMatch[1] : "-";
+    }
+
+    function copyValue(id) {
+        const val = document.getElementById(id).innerText;
+        if(val !== "-") {
+            navigator.clipboard.writeText(val);
+        }
+    }
+
+    function updateStatus(id, status, sIdx, pIdx) {
+        selections[id] = { status, textMet: qaData[sIdx].params[pIdx].met, textFail: qaData[sIdx].params[pIdx].fail, section: sIdx };
+        document.getElementById(`met-${id}`).classList.toggle('active', status === 'met');
+        document.getElementById(`missed-${id}`).classList.toggle('active', status === 'missed');
+        generateComment();
+    }
+
+    function generateComment() {
+        let metList = [];
+        let failList = [];
+        let sectionData = qaData.map(() => []);
+
+        for (let key in selections) {
+            if (selections[key]) {
+                const item = selections[key];
+                const text = item.status === 'met' ? item.textMet : item.textFail;
+                if (item.status === 'met') metList.push(text);
+                else failList.push(text);
+                sectionData[item.section].push(text);
+            }
+        }
+
+        let finalOutput = "";
+        if (metList.length > 0) finalOutput += "STRENGTHS: " + metList.join(", ") + ". ";
+        if (failList.length > 0) finalOutput += "OPPORTUNITIES: " + failList.join(", ") + ".";
+        else if (metList.length > 0) finalOutput += "Specialist successfully met all monitored criteria during this interaction.";
+        document.getElementById('output-text').value = finalOutput.trim();
+
+        // Section outputs (Clean - no labels)
+        sectionData.forEach((list, idx) => {
+            document.getElementById(`section-out-${idx}`).value = list.join(", ");
+        });
+    }
+
+    function copyText(elementId) {
+        const textArea = document.getElementById(elementId);
+        textArea.select();
+        document.execCommand('copy');
+    }
+
+    function resetForm() {
+        for (let key in selections) selections[key] = null;
+        document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('output-text').value = "";
+        document.getElementById('call-details-input').value = "";
+        document.querySelectorAll('.section-text').forEach(t => t.value = "");
+        document.querySelectorAll('.parsed-item span[id^="res-"]').forEach(s => s.innerText = "-");
+    }
+
+    initForm();
+</script>
+</body>
+</html>
