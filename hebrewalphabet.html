@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hebrew Alphabet Writing Test</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --text-color: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { margin-bottom: 5px; color: var(--primary-color); }
+
+        .app-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 25px;
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .score-board {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 15px;
+            background: #f1f5f9;
+            padding: 6px 16px;
+            border-radius: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        select, button {
+            padding: 10px 16px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button.primary {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        button.check {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        button.secondary {
+            background-color: #94a3b8;
+            color: white;
+            border: none;
+        }
+
+        .mode-toggle {
+            display: flex;
+            border: 1px solid var(--accent-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .mode-toggle button {
+            background: transparent;
+            color: var(--accent-color);
+            border-radius: 0;
+            padding: 8px 14px;
+        }
+
+        .mode-toggle button.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .letter-info {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .letter-info h2 { margin: 0; font-size: 1.8rem; color: var(--primary-color); }
+        .letter-info p { margin: 4px 0 0 0; color: #666; }
+
+        .canvas-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 15px;
+            touch-action: none;
+        }
+
+        canvas {
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            background-color: #fff;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #guide-canvas { z-index: 1; pointer-events: none; }
+        #draw-canvas { z-index: 2; cursor: crosshair; }
+
+        .feedback-box {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: none;
+            box-sizing: border-box;
+        }
+
+        .feedback-box.pass {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .feedback-box.fail {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Hebrew Writing Test Engine</h1>
+
+    <div class="app-container">
+        
+        <div class="score-board" id="score-display">Score: 0 Passed | 0 Tested</div>
+
+        <div class="controls">
+            <select id="letter-select"></select>
+
+            <div class="mode-toggle">
+                <button id="btn-block" class="active" onclick="setStyle('block')">Block</button>
+                <button id="btn-cursive" onclick="setStyle('cursive')">Cursive</button>
+            </div>
+        </div>
+
+        <div class="letter-info">
+            <h2 id="letter-name">Alef</h2>
+            <p id="letter-sound">Sound: Silent / Vowel carrier</p>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="guide-canvas" width="300" height="300"></canvas>
+            <canvas id="draw-canvas" width="300" height="300"></canvas>
+        </div>
+
+        <div id="feedback" class="feedback-box"></div>
+
+        <div class="controls">
+            <button class="secondary" onclick="clearDrawing()">Clear</button>
+            <button class="check" onclick="checkAnswer()">Check Answer</button>
+            <button class="primary" onclick="nextLetter()">Next &rarr;</button>
+        </div>
+
+    </div>
+
+    <script>
+        const letters = [
+            { name: "Alef", sound: "Silent / Vowel carrier", block: "א" },
+            { name: "Bet / Vet", sound: "B as in Boy / V as in Vine", block: "ב" },
+            { name: "Gimel", sound: "G as in Go", block: "ג" },
+            { name: "Dalet", sound: "D as in Door", block: "ד" },
+            { name: "Hei", sound: "H as in House", block: "ה" },
+            { name: "Vav", sound: "V as in Vine / Vowels O and U", block: "ו" },
+            { name: "Zayin", sound: "Z as in Zebra", block: "ז" },
+            { name: "Chet", sound: "Ch (guttural) as in Bach", block: "ח" },
+            { name: "Tet", sound: "T as in Time", block: "ט" },
+            { name: "Yod", sound: "Y as in Yes", block: "י" },
+            { name: "Khaf / Kaf", sound: "K as in Kite / Ch as in Bach", block: "כ" },
+            { name: "Final Khaf", sound: "Ch (used at end of words)", block: "ך" },
+            { name: "Lamed", sound: "L as in Lion", block: "ל" },
+            { name: "Mem", sound: "M as in Mother", block: "מ" },
+            { name: "Final Mem", sound: "M (used at end of words)", block: "ם" },
+            { name: "Nun", sound: "N as in Night", block: "נ" },
+            { name: "Final Nun", sound: "N (used at end of words)", block: "ן" },
+            { name: "Samekh", sound: "S as in Sun", block: "ס" },
+            { name: "Ayin", sound: "Silent / Guttural carrier", block: "ע" },
+            { name: "Pei / Fei", sound: "P as in Park / F as in Far", block: "פ" },
+            { name: "Final Fei", sound: "F (used at end of words)", block: "ף" },
+            { name: "Tsadi", sound: "Ts as in Cats", block: "צ" },
+            { name: "Final Tsadi", sound: "Ts (used at end of words)", block: "ץ" },
+            { name: "Kof", sound: "K as in Key", block: "ק" },
+            { name: "Resh", sound: "R sound (guttural)", block: "ר" },
+            { name: "Shin / Sin", sound: "Sh as in Shoe / S as in Sun", block: "ש" },
+            { name: "Tav", sound: "T as in Tall", block: "ת" }
+        ];
+
+        let currentIndex = 0;
+        let currentStyle = 'block';
+        let isDrawing = false;
+        let passedCount = 0;
+        let testedCount = 0;
+
+        const drawCanvas = document.getElementById('draw-canvas');
+        const guideCanvas = document.getElementById('guide-canvas');
+        const drawCtx = drawCanvas.getContext('2d');
+        const guideCtx = guideCanvas.getContext('2d');
+        const feedbackEl = document.getElementById('feedback');
+
+        function init() {
+            const letterSelect = document.getElementById('letter-select');
+            letters.forEach((item, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = `${index + 1}. ${item.name} (${item.block})`;
+                letterSelect.appendChild(opt);
+            });
+
+            letterSelect.addEventListener('change', (e) => {
+                currentIndex = parseInt(e.target.value);
+                updateDisplay();
+            });
+
+            setupCanvasListeners();
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const current = letters[currentIndex];
+            document.getElementById('letter-select').value = currentIndex;
+            document.getElementById('letter-name').textContent = `${current.name} (${current.block})`;
+            document.getElementById('letter-sound').textContent = `Sound: ${current.sound}`;
+
+            feedbackEl.style.display = 'none';
+            clearDrawing();
+            drawGrid();
+        }
+
+        function drawGrid() {
+            guideCtx.clearRect(0, 0, guideCanvas.width, guideCanvas.height);
+            guideCtx.strokeStyle = '#e2e8f0';
+            guideCtx.lineWidth = 1;
+            guideCtx.beginPath();
+            guideCtx.moveTo(0, 50); guideCtx.lineTo(300, 50);
+            guideCtx.moveTo(0, 150); guideCtx.lineTo(300, 150);
+            guideCtx.moveTo(0, 250); guideCtx.lineTo(300, 250);
+            guideCtx.stroke();
+        }
+
+        function setStyle(style) {
+            currentStyle = style;
+            document.getElementById('btn-block').classList.toggle('active', style === 'block');
+            document.getElementById('btn-cursive').classList.toggle('active', style === 'cursive');
+            updateDisplay();
+        }
+
+        function setupCanvasListeners() {
+            drawCtx.lineWidth = 14;
+            drawCtx.lineCap = 'round';
+            drawCtx.lineJoin = 'round';
+            drawCtx.strokeStyle = '#1e293b';
+
+            drawCanvas.addEventListener('mousedown', startDrawing);
+            drawCanvas.addEventListener('mousemove', draw);
+            drawCanvas.addEventListener('mouseup', stopDrawing);
+            drawCanvas.addEventListener('mouseleave', stopDrawing);
+
+            drawCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e.touches[0]); });
+            drawCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+            drawCanvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function getCoords(e) {
+            const rect = drawCanvas.getBoundingClientRect();
+            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+
+        function startDrawing(e) { isDrawing = true; const p = getCoords(e); drawCtx.beginPath(); drawCtx.moveTo(p.x, p.y); }
+        function draw(e) { if (!isDrawing) return; const p = getCoords(e); drawCtx.lineTo(p.x, p.y); drawCtx.stroke(); }
+        function stopDrawing() { isDrawing = false; }
+
+        function clearDrawing() { 
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height); 
+            feedbackEl.style.display = 'none';
+            drawGrid();
+        }
+
+        // Test Verification Engine
+        function checkAnswer() {
+            const current = letters[currentIndex];
+
+            // Render ideal target on offscreen canvas
+            const refCanvas = document.createElement('canvas');
+            refCanvas.width = 300; refCanvas.height = 300;
+            const refCtx = refCanvas.getContext('2d');
+
+            refCtx.fillStyle = '#000';
+            refCtx.font = currentStyle === 'block' ? '180px "Arial", sans-serif' : '180px "Segoe Print", "Keter YG", cursive';
+            refCtx.textAlign = 'center';
+            refCtx.textBaseline = 'middle';
+            refCtx.fillText(current.block, 150, 150);
+
+            // Fetch image pixels
+            const userImg = drawCtx.getImageData(0, 0, 300, 300).data;
+            const refImg = refCtx.getImageData(0, 0, 300, 300).data;
+
+            let userPixelCount = 0;
+            let overlapPixelCount = 0;
+
+            // Check pixel overlaps
+            for (let i = 3; i < userImg.length; i += 4) {
+                const userAlpha = userImg[i];
+                const refAlpha = refImg[i];
+
+                if (userAlpha > 50) {
+                    userPixelCount++;
+                    if (refAlpha > 50) {
+                        overlapPixelCount++;
+                    }
+                }
+            }
+
+            if (userPixelCount === 0) {
+                showFeedback(false, "Please draw the letter first!");
+                return;
+            }
+
+            const accuracy = (overlapPixelCount / userPixelCount) * 100;
+            testedCount++;
+
+            if (accuracy > 30) { 
+                passedCount++;
+                showFeedback(true, `Correct! Match score: ${Math.round(accuracy)}%.`);
+            } else {
+                showFeedback(false, `Incorrect (${Math.round(accuracy)}% match). Showing red reference guide beneath.`);
+                
+                // Show correction guide
+                guideCtx.fillStyle = 'rgba(231, 76, 60, 0.35)';
+                guideCtx.font = refCtx.font;
+                guideCtx.textAlign = 'center';
+                guideCtx.textBaseline = 'middle';
+                guideCtx.fillText(current.block, 150, 150);
+            }
+
+            document.getElementById('score-display').textContent = `Score: ${passedCount} Passed | ${testedCount} Tested`;
+        }
+
+        function showFeedback(isPass, msg) {
+            feedbackEl.className = `feedback-box ${isPass ? 'pass' : 'fail'}`;
+            feedbackEl.textContent = msg;
+            feedbackEl.style.display = 'block';
+        }
+
+        function nextLetter() {
+            if (currentIndex < letters.length - 1) {
+                currentIndex++;
+                updateDisplay();
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
